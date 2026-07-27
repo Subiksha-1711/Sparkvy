@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TES Product Catalogue – SparkVy Advanced Research</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="assets/chem-fx.css" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f7fa; --bg-alt: #fff; --bg-deep: #eef1f7;
+    --accent: #e8560a; --orange: #d44a00; --blue: #1a3a6b;
+    --text: #1e2a3a; --text-body: #3d4f66; --muted: #6b7f99;
+    --border: #dde4ef; --white: #fff;
+    --teal: #0d9488; --gold: #c97a06;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); overflow-x:hidden; }
+
+  /* NAV */
+  nav {
+    position:fixed; top:0; left:0; width:100%; z-index:1000;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 60px;
+    background:rgba(255,255,255,0.96); backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--border); box-shadow:0 2px 16px rgba(30,42,58,0.07);
+  }
+  .nav-logo { display:flex; cc; gap:12px; text-decoration:none; }
+  .nav-logo img { height: 77px; object-fit: contain; }
+  .nav-brand { font-family:'Playfair Display',serif; font-size:1.45rem; font-weight:900; color:var(--text); }
+  .nav-brand span { color:var(--accent); }
+  .nav-links { display:flex; gap:28px; align-items:center; }
+  .nav-links a { color:var(--muted); text-decoration:none; font-size:0.86rem; font-weight:500; letter-spacing:0.05em; text-transform:uppercase; transition:color 0.3s; }
+  .nav-links a:hover { color:var(--accent); }
+  .nav-btn { background:var(--accent); color:#ffffff!important; padding:9px 20px; border-radius:4px; font-weight:700!important; }
+  .nav-btn:hover { background:var(--orange)!important; }
+
+  /* PAGE HERO */
+  .page-hero {
+    background:var(--white);
+    padding:120px 60px 20px; text-align:center; position:relative; overflow:hidden;
+
+    
+  }
+ .page-hero::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 70% 40%, rgba(65, 10, 232, 0.06) 0%, transparent 60%),
+                radial-gradient(ellipse at 10% 80%, rgba(26,58,107,0.05) 0%, transparent 50%);
+  }
+  .page-hero-grid-bg {
+    position: absolute; inset: 0;
+    background:var(--text);
+    background-size: 40px 40px;
+  }
+  .page-hero-inner { position:relative; z-index:1; max-width:760px; margin:0 auto; }
+  .tes-badge {
+    display:inline-flex; align-items:center; gap:10px;
+    background:rgba(232,86,10,0.15); border:1px solid rgba(232,86,10,0.35);
+    padding:6px 18px; border-radius:2px; margin-bottom:20px;
+    font-size:0.78rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--accent); font-weight:700;
+  }
+  
+  .page-hero h1 { font-family:'Playfair Display',serif; font-size:clamp(2rem,4vw,3rem); font-weight:900; color:var(--white); margin-bottom:14px; }
+  .page-hero h1 em { color:var(--accent); font-style:normal; }
+  .page-hero p { color:rgba(255, 255, 255, 0.75); font-size:1rem; line-height:1.7; margin-bottom:22px; }
+  .supplier-info {
+    display:inline-flex; align-items:center; gap:18px; flex-wrap:wrap; justify-content:center;
+    background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.14);
+    border-radius:6px; padding:12px 24px; margin-top:12px;
+    font-size:0.8rem; color:rgba(255,255,255,0.7);
+  }
+  .supplier-info span { display:flex; align-items:center; gap:6px; }
+
+  /* LAYOUT WRAPPER */
+  .page-body {
+    display:flex; align-items:flex-start;
+    max-width:1400px; margin:0 auto; padding:36px 40px 80px;
+    gap:28px;
+  }
+
+  /* VERTICAL SIDEBAR */
+  .filter-sidebar {
+    width:230px; flex-shrink:0;
+    position:sticky; top:84px;
+    background:var(--white); border-radius:14px;
+    border:1px solid var(--border);
+    box-shadow:0 4px 20px rgba(30,42,58,0.07);
+    overflow:hidden;
+  }
+  .filter-sidebar-head {
+    background:linear-gradient(135deg, var(--blue), #2a5a9b);
+    padding:14px 18px;
+    font-size:0.7rem; font-weight:800; letter-spacing:0.12em;
+    text-transform:uppercase; color:rgba(255,255,255,0.85);
+    display:flex; align-items:center; gap:8px;
+  }
+  .filter-sidebar-head span { font-size:1rem; }
+  .filter-btn {
+    display:flex; align-items:center; gap:10px;
+    width:100%; padding:11px 18px; cursor:pointer;
+    font-size:0.78rem; font-weight:600; color:var(--muted);
+    text-align:left; letter-spacing:0.03em;
+    border:none; background:none;
+    border-left:3px solid transparent;
+    border-bottom:1px solid var(--border);
+    transition:all 0.2s; white-space:nowrap;
+  }
+  .filter-btn:last-child { border-bottom:none; }
+  .filter-btn:hover { color:var(--text); background:var(--bg); }
+  .filter-btn.active {
+    color:var(--accent); background:rgba(232,86,10,0.06);
+    border-left-color:var(--accent); font-weight:700;
+  }
+  .filter-btn .cat-dot {
+    width:7px; height:7px; border-radius:50%;
+    background:var(--border); flex-shrink:0; transition:background 0.2s;
+  }
+  .filter-btn.active .cat-dot { background:var(--accent); }
+
+  .filter-sidebar-inner { display:flex; flex-direction:column; }
+  /* MAIN */
+  .main-wrap { flex:1; min-width:0; }
+
+  /* CATEGORY SECTION */
+  .cat-section { margin-bottom:60px; }
+  .cat-header {
+    display:flex; align-items:center; gap:14px;
+    margin-bottom:24px; padding-bottom:14px;
+    border-bottom:2px solid var(--border);
+  }
+  .cat-icon-box {
+    width:46px; height:46px; border-radius:10px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.3rem;
+    background:linear-gradient(135deg, var(--blue), #2a5a9b);
+  }
+  .cat-title { font-family:'Playfair Display',serif; font-size:1.4rem; font-weight:800; color:var(--text); }
+  .cat-count { margin-left:auto; background:rgba(232,86,10,0.1); color:var(--accent); font-size:0.73rem; font-weight:700; padding:4px 12px; border-radius:100px; white-space:nowrap; }
+
+  /* SUBCATEGORY */
+  .subcat { margin-bottom:28px; }
+  .subcat-title {
+    font-size:0.82rem; font-weight:700; text-transform:uppercase;
+    letter-spacing:0.1em; color:var(--blue); margin-bottom:14px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .subcat-title::before { content:''; display:block; width:18px; height:2px; background:var(--accent); }
+
+  /* PRODUCT GRID */
+  .prod-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; }
+  .prod-card {
+    background:var(--white); border-radius:12px; border:1px solid var(--border);
+    padding:20px; transition:all 0.25s; position:relative; overflow:hidden;
+  }
+  .prod-card::after {
+    content:''; position:absolute; bottom:0; left:0; right:0; height:3px;
+    background:linear-gradient(90deg,var(--accent),var(--orange));
+    transform:scaleX(0); transform-origin:left; transition:transform 0.3s;
+  }
+  .prod-card:hover { transform:translateY(-4px); box-shadow:0 14px 40px rgba(30,42,58,0.1); border-color:rgba(232,86,10,0.2); }
+  .prod-card:hover::after { transform:scaleX(1); }
+
+  .prod-partno {
+    font-family:monospace; font-size:0.72rem; font-weight:700;
+    color:var(--accent); letter-spacing:0.08em; text-transform:uppercase;
+    margin-bottom:8px; display:block;
+  }
+  .prod-name {
+    font-family:'Playfair Display',serif; font-size:1rem; font-weight:700;
+    color:var(--text); line-height:1.35; margin-bottom:12px;
+  }
+  .prod-meta { display:flex; flex-wrap:wrap; gap:8px; margin-top:auto; }
+  .prod-badge {
+    display:inline-flex; align-items:center; gap:4px;
+    font-size:0.7rem; font-weight:600; padding:3px 10px; border-radius:6px;
+  }
+  .badge-spec { background:rgba(26,58,107,0.08); color:var(--blue); }
+  .badge-type { background:rgba(232,86,10,0.1); color:#c44a00; }
+
+  .prod-enquire {
+    margin-top:14px; padding-top:12px; border-top:1px solid var(--border);
+  }
+  .btn-enq {
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:0.78rem; font-weight:600; color:var(--accent);
+    text-decoration:none; transition:gap 0.2s;
+  }
+  .btn-enq:hover { gap:10px; }
+
+  /* NOTE */
+  .note-bar {
+    background:rgba(232,86,10,0.06); border:1px solid rgba(232,86,10,0.2);
+    border-radius:6px; padding:14px 20px; margin-top:36px;
+    font-size:0.82rem; color:var(--muted); line-height:1.6;
+    display:flex; gap:10px; align-items:flex-start;
+  }
+  .note-bar strong { color:var(--accent); }
+
+  /* FOOTER */
+  footer {
+    background:var(--blue); padding:40px 60px 24px;
+    display:grid; grid-template-columns:2fr 1fr 1fr; gap:40px;
+  }
+  .footer-brand { font-family:'Playfair Display',serif; font-size:1.3rem; font-weight:900; color:#fff; margin-bottom:10px; }
+  .footer-brand span { color:var(--accent); }
+  footer p, footer a { font-size:0.83rem; color:rgba(255,255,255,0.65); text-decoration:none; display:block; margin-bottom:8px; }
+  footer h4 { font-size:0.73rem; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.5); margin-bottom:12px; font-weight:700; }
+  .footer-bottom { padding:16px 60px; text-align:center; border-top:1px solid rgba(255,255,255,0.1); font-size:0.75rem; color:rgba(255,255,255,0.35); background:rgba(255,255,255,0.03); }
+  .footer-bottom span { color:var(--accent); }
+
+  @media(max-width:960px) {
+    nav { padding:10px 20px; }
+    .nav-logo img { height: 44px; }
+    .nav-links { gap: 0; }
+    .nav-btn { padding: 7px 14px; font-size: 0.74rem; }
+    .page-hero { padding:96px 20px 40px; }
+    .page-body { flex-direction:column; padding:20px 16px 60px; gap:16px; }
+    .filter-sidebar { width:100%; position:static; border-radius:10px; }
+    .filter-btn { display:inline-flex; width:auto; border-left:none !important; border-bottom:none; border-radius:6px; margin:4px; padding:8px 14px; background:var(--white); border:1px solid var(--border); }
+    .filter-btn.active { background:rgba(232,86,10,0.08); border-color:rgba(232,86,10,0.3); }
+    .filter-sidebar-inner { display:flex; flex-wrap:wrap; padding:10px; }
+    .main-wrap { padding:0; }
+    .prod-grid { grid-template-columns:1fr; }
+    footer { grid-template-columns:1fr; gap:24px; padding:32px 20px 20px; }
+    .footer-bottom { padding:14px 20px; }
+  }
+  .hidden { display:none!important; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo">
+    <img src="images/logo.jpeg" loading="lazy">
+    <span class="nav-brand">Spark<span>Vy</span></span>
+  </a>
+  <div class="nav-links">
+    <a href="index.html" class="nav-btn">Back To Home </a>
+  </div>
+</nav>
+
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="page-hero-grid-bg"></div>
+  <div class="chem-fx-layer"></div>
+  <div class="page-hero-inner reveal">
+    <div class="tes-badge">⚗️ Electrochemical Research Consumables</div>
+    <h1>Product <em>Catalogue</em></h1>
+    <p>Where Quality Meets Innovation.</p>
+    
+  </div>
+</div>
+
+<!-- BODY LAYOUT -->
+<div class="page-body">
+
+<!-- VERTICAL CATEGORY SIDEBAR -->
+<aside class="filter-sidebar">
+  <div class="filter-sidebar-head"><span>☰</span> Categories</div>
+  <div class="filter-sidebar-inner">
+  <button class="filter-btn active" data-cat="all"><span class="cat-dot"></span>All Products</button>
+  <button class="filter-btn" data-cat="working"><span class="cat-dot"></span>Working Electrodes</button>
+  <button class="filter-btn" data-cat="counter"><span class="cat-dot"></span>Counter Electrodes</button>
+  <button class="filter-btn" data-cat="reference"><span class="cat-dot"></span>Reference Electrodes</button>
+  <button class="filter-btn" data-cat="binders"><span class="cat-dot"></span>Binders</button>
+  <button class="filter-btn" data-cat="foils"><span class="cat-dot"></span>Foils</button>
+  <button class="filter-btn" data-cat="foams"><span class="cat-dot"></span>Foams & Films</button>
+  <button class="filter-btn" data-cat="mesh"><span class="cat-dot"></span>Mesh</button>
+  <button class="filter-btn" data-cat="carbon"><span class="cat-dot"></span>Carbon Materials</button>
+  <button class="filter-btn" data-cat="separator"><span class="cat-dot"></span>Separators</button>
+  <button class="filter-btn" data-cat="coincell"><span class="cat-dot"></span>Coin Cell Parts</button>
+  <button class="filter-btn" data-cat="cells"><span class="cat-dot"></span>Electrochemical Cells</button>
+  <button class="filter-btn" data-cat="membranes"><span class="cat-dot"></span>Membranes</button>
+  <button class="filter-btn" data-cat="fixtures"><span class="cat-dot"></span>Cell Fixtures</button>
+  <button class="filter-btn" data-cat="misc"><span class="cat-dot"></span>Misc & Accessories</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main-wrap">
+
+  <!-- ====== 1. WORKING ELECTRODES ====== -->
+  <div class="cat-section" data-section="working">
+    <div class="cat-header reveal">
+      <div class="cat-icon-box">⚡</div>
+      <div class="cat-title">Working Electrodes</div>
+      <div class="cat-count">Section 1A</div>
+    </div>
+
+    <div class="subcat">
+      <div class="subcat-title">Glassy Carbon Working Electrode</div>
+      <div class="prod-grid">
+        <div class="prod-card"><span class="prod-partno">TES-EC-GCW-3</span><div class="prod-name">Glassy Carbon Working Electrode</div><div class="prod-meta"><span class="prod-badge badge-spec">ID = 3 mm</span><span class="prod-badge badge-type">GC Standard</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-GCW-3" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-EC-GCW-5</span><div class="prod-name">Glassy Carbon Working Electrode</div><div class="prod-meta"><span class="prod-badge badge-spec">ID = 5 mm</span><span class="prod-badge badge-type">GC Standard</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-GCW-5" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-EC-GCL-3</span><div class="prod-name">Glassy Carbon Working Electrode (L Shape)</div><div class="prod-meta"><span class="prod-badge badge-spec">ID = 3 mm</span><span class="prod-badge badge-type">L Shape</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-GCL-3" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-EC-GCP-10</span><div class="prod-name">Glassy Carbon Plate Working Electrode</div><div class="prod-meta"><span class="prod-badge badge-spec">L×B = 10×10 mm, T=1 mm</span><span class="prod-badge badge-type">Plate</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-GCP-10" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-EC-GCD-3</span><div class="prod-name">Detachable Glassy Carbon Working Electrode</div><div class="prod-meta"><span class="prod-badge badge-spec">ID = 3 mm</span><span class="prod-badge badge-type">Detachable</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-GCD-3" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-EC-GCH-10</span><div class="prod-name">Glassy Carbon Sample Holder</div><div class="prod-meta"><span class="prod-badge badge-spec">L×B = 10×10 mm</span><span class="prod-badge badge-type">Sample Holder</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-GCH-10" class="btn-enq">Enquire →</a></div></div>
+      </div>
+    </div>
+
+    <div class="subcat">
+      <div class="subcat-title">Platinum Working Electrode</div>
+      <div class="prod-grid">
+        <div class="prod-card"><span class="prod-partno">TES-EC-PT-3</span><div class="prod-name">Platinum Working Electrode</div><div class="prod-meta"><span class="prod-badge badge-spec">3 mm</span><span class="prod-badge badge-type">Platinum</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-PT-3" class="btn-enq">Enquire →</a></div></div>
+      </div>
+    </div>
+
+    <div class="subcat">
+      <div class="subcat-title">Gold Working Electrode</div>
+      <div class="prod-grid">
+        <div class="prod-card"><span class="prod-partno">TES-EC-AU-2</span><div class="prod-name">Gold Working Electrode</div><div class="prod-meta"><span class="prod-badge badge-spec">ID = 2 mm</span><span class="prod-badge badge-type">Gold</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-AU-2" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-EC-AU-3</span><div class="prod-name">Gold Working Electrode</div><div class="prod-meta"><span class="prod-badge badge-spec">ID = 3 mm</span><span class="prod-badge badge-type">Gold</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-AU-3" class="btn-enq">Enquire →</a></div></div>
+      </div>
+    </div>
+
+    <div class="subcat">
+      <div class="subcat-title">Other Working Electrodes</div>
+      <div class="prod-grid">
+        <div class="prod-card"><span class="prod-partno">TES-EC-CU-3</span><div class="prod-name">Copper Working Electrode</div><div class="prod-meta"><span class="prod-badge badge-spec">ID = 3 mm</span><span class="prod-badge badge-type">Copper</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-CU-3" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-EC-NI-3</span><div class="prod-name">Nickel Working Electrode</div><div class="prod-meta"><span class="prod-badge badge-spec">ID = 3 mm</span><span class="prod-badge badge-type">Nickel</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-NI-3" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-EC-SS316-3</span><div class="prod-name">Stainless Steel SS316 Working Electrode</div><div class="prod-meta"><span class="prod-badge badge-spec">ID = 3 mm</span><span class="prod-badge badge-type">SS316</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-SS316-3" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-EC-SSH-2</span><div class="prod-name">Stainless Steel Sample Holder</div><div class="prod-meta"><span class="prod-badge badge-spec">Sample thickness T=2 mm</span><span class="prod-badge badge-type">Sample Holder</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-SSH-2" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-EC-CUH-2</span><div class="prod-name">Copper Sample Holder</div><div class="prod-meta"><span class="prod-badge badge-spec">Sample thickness T=2 mm</span><span class="prod-badge badge-type">Sample Holder</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-CUH-2" class="btn-enq">Enquire →</a></div></div>
+      </div>
+    </div>
+
+    <div class="subcat">
+      <div class="subcat-title">Screen Printed Electrodes</div>
+      <div class="prod-grid">
+        <div class="prod-card"><span class="prod-partno">TES-EC-CSP-3</span><div class="prod-name">Carbon Screen Printed Electrode</div><div class="prod-meta"><span class="prod-badge badge-spec">10 Packs</span><span class="prod-badge badge-type">Screen Printed</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-CSP-3" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-EC-GSP-3</span><div class="prod-name">Gold Screen Printed Electrode</div><div class="prod-meta"><span class="prod-badge badge-spec">5 Packs</span><span class="prod-badge badge-type">Screen Printed</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-GSP-3" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-EC-SPEH-1</span><div class="prod-name">Screen Printed Electrode Holder</div><div class="prod-meta"><span class="prod-badge badge-spec">1 unit</span><span class="prod-badge badge-type">Holder</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-SPEH-1" class="btn-enq">Enquire →</a></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== 2. COUNTER ELECTRODES ====== -->
+  <div class="cat-section" data-section="counter">
+    <div class="cat-header reveal">
+      <div class="cat-icon-box">🔩</div>
+      <div class="cat-title">Counter Electrodes</div>
+      <div class="cat-count">Section 1B</div>
+    </div>
+
+    <div class="subcat">
+      <div class="subcat-title">Platinum Counter Electrodes</div>
+      <div class="prod-grid">
+        <div class="prod-card"><span class="prod-partno">TES-EC-PW-50</span><div class="prod-name">Platinum Wire Counter Electrode</div><div class="prod-meta"><span class="prod-badge badge-spec">L=50 mm, T=0.5 mm</span><span class="prod-badge badge-type">Wire</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-PW-50" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-EC-PPE-10</span><div class="prod-name">Platinum Plate Counter Electrode</div><div class="prod-meta"><span class="prod-badge badge-spec">L×B = 10×10 mm, T=100 µm</span><span class="prod-badge badge-type">Plate</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-PPE-10" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-EC-PPE-20</span><div class="prod-name">Platinum Plate Counter Electrode</div><div class="prod-meta"><span class="prod-badge badge-spec">L×B = 20×20 mm, T=100 µm</span><span class="prod-badge badge-type">Plate</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-PPE-20" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-EC-PPH-10</span><div class="prod-name">Platinum Plate Electrode Holder</div><div class="prod-meta"><span class="prod-badge badge-spec">L×B = 10×10 mm</span><span class="prod-badge badge-type">Holder</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-PPH-10" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-EC-PPLH-10</span><div class="prod-name">Platinum Plate Electrode Holder (L Shape)</div><div class="prod-meta"><span class="prod-badge badge-spec">L×B = 10×10 mm</span><span class="prod-badge badge-type">L Shape Holder</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-PPLH-10" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-EC-PMSH-10</span><div class="prod-name">Platinum Mesh Counter Electrode</div><div class="prod-meta"><span class="prod-badge badge-spec">L×B = 10×10 mm</span><span class="prod-badge badge-type">Mesh</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-PMSH-10" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-EC-PSC-250</span><div class="prod-name">Platinum Spiral Counter Electrode</div><div class="prod-meta"><span class="prod-badge badge-spec">Spiral length = 250 mm</span><span class="prod-badge badge-type">Spiral</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-PSC-250" class="btn-enq">Enquire →</a></div></div>
+      </div>
+    </div>
+
+    <div class="subcat">
+      <div class="subcat-title">Graphite Counter Electrodes</div>
+      <div class="prod-grid">
+        <div class="prod-card"><span class="prod-partno">TES-EC-GPC-3</span><div class="prod-name">Graphite Plate Counter Electrode</div><div class="prod-meta"><span class="prod-badge badge-spec">L×B = 15×15 mm, T=3 mm</span><span class="prod-badge badge-type">Graphite Plate</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-GPC-3" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-EC-GRC-3</span><div class="prod-name">Graphite Rod Electrode</div><div class="prod-meta"><span class="prod-badge badge-spec">L=150 mm, ID=3 mm</span><span class="prod-badge badge-type">Graphite Rod</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-GRC-3" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-EC-GRC-6</span><div class="prod-name">Graphite Rod Electrode</div><div class="prod-meta"><span class="prod-badge badge-spec">L=100 mm, ID=6 mm</span><span class="prod-badge badge-type">Graphite Rod</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-GRC-6" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-EC-SHC-10</span><div class="prod-name">Sample Holder Counter Electrode</div><div class="prod-meta"><span class="prod-badge badge-spec">ID = 10 mm</span><span class="prod-badge badge-type">Sample Holder</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-SHC-10" class="btn-enq">Enquire →</a></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== 3. REFERENCE ELECTRODES ====== -->
+  <div class="cat-section" data-section="reference">
+    <div class="cat-header reveal">
+      <div class="cat-icon-box">🔵</div>
+      <div class="cat-title">Reference Electrodes</div>
+      <div class="cat-count">Section 1C</div>
+    </div>
+
+    <div class="subcat">
+      <div class="subcat-title">Ag/AgCl Reference Electrodes</div>
+      <div class="prod-grid">
+        <div class="prod-card"><span class="prod-partno">TES-EC-AG-3</span><div class="prod-name">Ag/AgCl Reference Electrode</div><div class="prod-meta"><span class="prod-badge badge-spec">L=50 mm, ID=4 mm</span><span class="prod-badge badge-type">Ag/AgCl</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-AG-3" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-EC-AG-6</span><div class="prod-name">Ag/AgCl Reference Electrode</div><div class="prod-meta"><span class="prod-badge badge-spec">L=100 mm, ID=6 mm</span><span class="prod-badge badge-type">Ag/AgCl</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-AG-6" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-EC-AGSF-3</span><div class="prod-name">Ag/AgCl Reference Electrode (Side Filling)</div><div class="prod-meta"><span class="prod-badge badge-spec">ID = 3 mm</span><span class="prod-badge badge-type">Side Filling</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-AGSF-3" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-EC-AGTB-2</span><div class="prod-name">Ag/AgCl Reference Electrode (Teflon Body)</div><div class="prod-meta"><span class="prod-badge badge-spec">ID = 2 mm</span><span class="prod-badge badge-type">Teflon Body</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-AGTB-2" class="btn-enq">Enquire →</a></div></div>
+      </div>
+    </div>
+
+    <div class="subcat">
+      <div class="subcat-title">Hg/HgO & Other Reference Electrodes</div>
+      <div class="prod-grid">
+        <div class="prod-card"><span class="prod-partno">TES-EC-HGO-3</span><div class="prod-name">Hg/HgO Reference Electrode</div><div class="prod-meta"><span class="prod-badge badge-spec">L=70 mm, ID=3 mm</span><span class="prod-badge badge-type">Hg/HgO</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-HGO-3" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-EC-HgOT-3</span><div class="prod-name">Hg/HgO Reference Electrode (Teflon Body)</div><div class="prod-meta"><span class="prod-badge badge-spec">L=70 mm, ID=3 mm</span><span class="prod-badge badge-type">Teflon Body</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-HgOT-3" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-EC-Hg2SO4-3</span><div class="prod-name">Hg/Hg₂SO₄ Reference Electrode</div><div class="prod-meta"><span class="prod-badge badge-spec">L=50 mm, ID=3 mm</span><span class="prod-badge badge-type">Hg/Hg₂SO₄</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-Hg2SO4-3" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-EC-SHM-8</span><div class="prod-name">Standard Hydrogen Reference Electrode Mini</div><div class="prod-meta"><span class="prod-badge badge-spec">ID = 2 mm</span><span class="prod-badge badge-type">SHE Mini</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-SHM-8" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-EC-SHE-8</span><div class="prod-name">Standard Hydrogen Reference Electrode</div><div class="prod-meta"><span class="prod-badge badge-spec">ID = 3/6 mm</span><span class="prod-badge badge-type">SHE</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-SHE-8" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-EC-SCR-3</span><div class="prod-name">Saturated Calomel Reference Electrode</div><div class="prod-meta"><span class="prod-badge badge-spec">OD = 6 mm</span><span class="prod-badge badge-type">Calomel</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-SCR-3" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-EC-LCBT-2</span><div class="prod-name">Luggin Capillary (Bridge Tube)</div><div class="prod-meta"><span class="prod-badge badge-spec">ID = 6 mm</span><span class="prod-badge badge-type">Bridge Tube</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-LCBT-2" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-EC-CEPK-1</span><div class="prod-name">Compact Electrode Polishing Kit</div><div class="prod-meta"><span class="prod-badge badge-type">Polishing Kit</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-CEPK-1" class="btn-enq">Enquire →</a></div></div>
+      </div>
+    </div>
+
+    <div class="subcat">
+      <div class="subcat-title">Swagelok Cells</div>
+      <div class="prod-grid">
+        <div class="prod-card"><span class="prod-partno">TES-EC-SC3-12</span><div class="prod-name">Swagelok Type Cell 3 Electrode</div><div class="prod-meta"><span class="prod-badge badge-spec">OD = 12 mm</span><span class="prod-badge badge-type">3 Electrode</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-SC3-12" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-EC-SC3-16</span><div class="prod-name">Swagelok Type Cell 3 Electrode</div><div class="prod-meta"><span class="prod-badge badge-spec">OD = 16 mm</span><span class="prod-badge badge-type">3 Electrode</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-SC3-16" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-EC-SW2-12</span><div class="prod-name">Swagelok Type Cell 2 Electrode</div><div class="prod-meta"><span class="prod-badge badge-spec">OD = 12 mm</span><span class="prod-badge badge-type">2 Electrode</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-SW2-12" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-EC-SW2-14</span><div class="prod-name">Swagelok Type Cell 2 Electrode</div><div class="prod-meta"><span class="prod-badge badge-spec">OD = 14 mm</span><span class="prod-badge badge-type">2 Electrode</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-SW2-14" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-EC-SW2-16</span><div class="prod-name">Swagelok Type Cell 2 Electrode</div><div class="prod-meta"><span class="prod-badge badge-spec">OD = 16 mm</span><span class="prod-badge badge-type">2 Electrode</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-SW2-16" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-EC-SW2-20</span><div class="prod-name">Swagelok Type Cell 2 Electrode</div><div class="prod-meta"><span class="prod-badge badge-spec">OD = 20 mm</span><span class="prod-badge badge-type">2 Electrode</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-EC-SW2-20" class="btn-enq">Enquire →</a></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== 4. BINDERS ====== -->
+  <div class="cat-section" data-section="binders">
+    <div class="cat-header reveal">
+      <div class="cat-icon-box">🧪</div>
+      <div class="cat-title">Binders</div>
+      <div class="cat-count">Section 2</div>
+    </div>
+
+    <div class="subcat">
+      <div class="subcat-title">Electrolyte Binders</div>
+      <div class="prod-grid">
+        <div class="prod-card"><span class="prod-partno">TES-BI-NFE-10</span><div class="prod-name">Nafion wt 5% in a Mixture of Lower Aliphatic Alcohols and Water Solution</div><div class="prod-meta"><span class="prod-badge badge-spec">Volume = 10 ml</span><span class="prod-badge badge-type">Electrolyte Binder</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-BI-NFE-10" class="btn-enq">Enquire →</a></div></div>
+      </div>
+    </div>
+
+    <div class="subcat">
+      <div class="subcat-title">Battery Binders</div>
+      <div class="prod-grid">
+        <div class="prod-card"><span class="prod-partno">TES-BI-SBRP-50</span><div class="prod-name">SBR Binder (Powder)</div><div class="prod-meta"><span class="prod-badge badge-spec">Weight = 50 grams</span><span class="prod-badge badge-type">SBR Powder</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-BI-SBRP-50" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-BI-SBRL-50</span><div class="prod-name">SBR Liquid Binder</div><div class="prod-meta"><span class="prod-badge badge-spec">Weight = 50 grams</span><span class="prod-badge badge-type">SBR Liquid</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-BI-SBRL-50" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-BI-PTFE-100</span><div class="prod-name">PTFE Binder</div><div class="prod-meta"><span class="prod-badge badge-spec">Liquid, 100 grams</span><span class="prod-badge badge-type">PTFE</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-BI-PTFE-100" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-BI-CMCP-100</span><div class="prod-name">CMC Binder (Powder)</div><div class="prod-meta"><span class="prod-badge badge-spec">Weight = 100 grams</span><span class="prod-badge badge-type">CMC</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-BI-CMCP-100" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-BI-NMP-100</span><div class="prod-name">N-Methyl-2-Pyrrolidone (NMP) Binder</div><div class="prod-meta"><span class="prod-badge badge-spec">Liquid, 100 grams</span><span class="prod-badge badge-type">NMP</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-BI-NMP-100" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-BI-AB-100</span><div class="prod-name">Aqueous Binder</div><div class="prod-meta"><span class="prod-badge badge-spec">Liquid, 100 grams</span><span class="prod-badge badge-type">Aqueous</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-BI-AB-100" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-BI-PVDF-100</span><div class="prod-name">PVDF (Polyvinylidene Fluoride) Binder</div><div class="prod-meta"><span class="prod-badge badge-spec">Powder, 100 grams</span><span class="prod-badge badge-type">PVDF</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-BI-PVDF-100" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-BI-PVDFB-100</span><div class="prod-name">PVDF Battery Grade Binder</div><div class="prod-meta"><span class="prod-badge badge-spec">Powder, 100 grams</span><span class="prod-badge badge-type">PVDF Battery Grade</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-BI-PVDFB-100" class="btn-enq">Enquire →</a></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== 5. FOAMS & FILMS ====== -->
+  <div class="cat-section" data-section="foams">
+    <div class="cat-header reveal">
+      <div class="cat-icon-box">🌊</div>
+      <div class="cat-title">Foams & Films</div>
+      <div class="cat-count">Section 3</div>
+    </div>
+
+    <div class="subcat">
+      <div class="subcat-title">Metal Foams</div>
+      <div class="prod-grid">
+        <div class="prod-card"><span class="prod-partno">TES-FM-NI-500</span><div class="prod-name">Nickel Foam</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=0.5 mm</span><span class="prod-badge badge-type">Nickel</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-FM-NI-500" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-FM-NI-1000</span><div class="prod-name">Nickel Foam</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=1 mm</span><span class="prod-badge badge-type">Nickel</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-FM-NI-1000" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-FM-NI-1600</span><div class="prod-name">Nickel Foam</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=1.6 mm</span><span class="prod-badge badge-type">Nickel</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-FM-NI-1600" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-FM-NI-2000</span><div class="prod-name">Nickel Foam</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=2 mm</span><span class="prod-badge badge-type">Nickel</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-FM-NI-2000" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-FM-CU-1000</span><div class="prod-name">Copper Foam</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=1 mm</span><span class="prod-badge badge-type">Copper</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-FM-CU-1000" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-FM-CU-2000</span><div class="prod-name">Copper Foam</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=2 mm</span><span class="prod-badge badge-type">Copper</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-FM-CU-2000" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-FM-AL-5000</span><div class="prod-name">Aluminium Foam</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=5 mm</span><span class="prod-badge badge-type">Aluminium</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-FM-AL-5000" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-FM-TI-1000</span><div class="prod-name">Titanium Foam</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=1 mm</span><span class="prod-badge badge-type">Titanium</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-FM-TI-1000" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-FM-SS-1000</span><div class="prod-name">Stainless Steel Foam</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=1 mm</span><span class="prod-badge badge-type">Stainless Steel</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-FM-SS-1000" class="btn-enq">Enquire →</a></div></div>
+      </div>
+    </div>
+
+    <div class="subcat">
+      <div class="subcat-title">Aluminium Laminated Film (Pouch Cell)</div>
+      <div class="prod-grid">
+        <div class="prod-card"><span class="prod-partno">TES-FM-ALF-152</span><div class="prod-name">Aluminium Laminated Film</div><div class="prod-meta"><span class="prod-badge badge-spec">200×200 mm, T=152 µm</span><span class="prod-badge badge-type">Pouch Cell</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-FM-ALF-152" class="btn-enq">Enquire →</a></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== 6. FOILS ====== -->
+  <div class="cat-section" data-section="foils">
+    <div class="cat-header reveal">
+      <div class="cat-icon-box">📋</div>
+      <div class="cat-title">Foils</div>
+      <div class="cat-count">Section 4</div>
+    </div>
+    <div class="prod-grid">
+      <div class="prod-card"><span class="prod-partno">TES-FL-SN-100</span><div class="prod-name">Tin Foil</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=100 µm</span><span class="prod-badge badge-type">Tin</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-FL-SN-100" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-FL-ZN-100</span><div class="prod-name">Zinc Foil</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=100 µm</span><span class="prod-badge badge-type">Zinc</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-FL-ZN-100" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-FL-ZN-500</span><div class="prod-name">Zinc Foil</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=500 µm</span><span class="prod-badge badge-type">Zinc</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-FL-ZN-500" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-FL-ZPMF-100</span><div class="prod-name">Zinc Polycrystalline Metallic Foil</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=100 µm</span><span class="prod-badge badge-type">Zinc Polycrystalline</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-FL-ZPMF-100" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-FL-NI-100</span><div class="prod-name">Nickel Foil</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=100 µm</span><span class="prod-badge badge-type">Nickel</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-FL-NI-100" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-FL-NI-500</span><div class="prod-name">Nickel Foil</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=500 µm</span><span class="prod-badge badge-type">Nickel</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-FL-NI-500" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-FL-CU-09</span><div class="prod-name">Copper Foil</div><div class="prod-meta"><span class="prod-badge badge-spec">5 m × 200 mm, T=9 µm</span><span class="prod-badge badge-type">Copper</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-FL-CU-09" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-FL-CU-16</span><div class="prod-name">Copper Foil</div><div class="prod-meta"><span class="prod-badge badge-spec">5 m × 200 mm, T=16 µm</span><span class="prod-badge badge-type">Copper</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-FL-CU-16" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-FL-CU-20</span><div class="prod-name">Copper Foil</div><div class="prod-meta"><span class="prod-badge badge-spec">5 m × 200 mm, T=20 µm</span><span class="prod-badge badge-type">Copper</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-FL-CU-20" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-FL-CU-100</span><div class="prod-name">Copper Foil</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=100 µm</span><span class="prod-badge badge-type">Copper</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-FL-CU-100" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-FL-CCCU-11</span><div class="prod-name">Carbon Coated Copper Foil</div><div class="prod-meta"><span class="prod-badge badge-spec">1000×239 mm, T=11 µm</span><span class="prod-badge badge-type">Carbon Coated</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-FL-CCCU-11" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-FL-AL-10</span><div class="prod-name">Aluminium Foil</div><div class="prod-meta"><span class="prod-badge badge-spec">5 m × 200 mm, T=10 µm</span><span class="prod-badge badge-type">Aluminium</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-FL-AL-10" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-FL-AL-100</span><div class="prod-name">Aluminium Foil</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=100 µm</span><span class="prod-badge badge-type">Aluminium</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-FL-AL-100" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-FL-CCAL-18</span><div class="prod-name">Carbon Coated Aluminium Foil</div><div class="prod-meta"><span class="prod-badge badge-spec">2000×260 mm, T=18 µm</span><span class="prod-badge badge-type">Carbon Coated</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-FL-CCAL-18" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-FL-SS-200</span><div class="prod-name">304 SS Foil</div><div class="prod-meta"><span class="prod-badge badge-spec">200×200 mm, T=100 µm</span><span class="prod-badge badge-type">304 Stainless Steel</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-FL-SS-200" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-FL-SS316-10</span><div class="prod-name">316 SS Foil</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=20 µm</span><span class="prod-badge badge-type">316 Stainless Steel</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-FL-SS316-10" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-FL-GF-250</span><div class="prod-name">Graphite Foil</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=250 µm</span><span class="prod-badge badge-type">Graphite</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-FL-GF-250" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-FL-GF-500</span><div class="prod-name">Graphite Foil</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=0.5 mm</span><span class="prod-badge badge-type">Graphite</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-FL-GF-500" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-FL-GF-1000</span><div class="prod-name">Graphite Foil</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=1 mm</span><span class="prod-badge badge-type">Graphite</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-FL-GF-1000" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-FL-MG-100</span><div class="prod-name">Magnesium Foil</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=100 µm</span><span class="prod-badge badge-type">Magnesium</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-FL-MG-100" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-FL-TI-100</span><div class="prod-name">Titanium Foil</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=100 µm</span><span class="prod-badge badge-type">Titanium</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-FL-TI-100" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-FL-MO-20</span><div class="prod-name">Molybdenum Foil</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=20 µm</span><span class="prod-badge badge-type">Molybdenum</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-FL-MO-20" class="btn-enq">Enquire →</a></div></div>
+    </div>
+
+    <div class="subcat" style="margin-top:24px;">
+      <div class="subcat-title">Felts</div>
+      <div class="prod-grid">
+        <div class="prod-card"><span class="prod-partno">TES-FLT-CF-6000</span><div class="prod-name">Carbon / Graphite Felt</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=6 mm</span><span class="prod-badge badge-type">Carbon/Graphite</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-FLT-CF-6000" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-FLT-TI-400</span><div class="prod-name">Titanium Felt</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=400 µm</span><span class="prod-badge badge-type">Titanium</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-FLT-TI-400" class="btn-enq">Enquire →</a></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== 7. MESH ====== -->
+  <div class="cat-section" data-section="mesh">
+    <div class="cat-header reveal">
+      <div class="cat-icon-box">🔲</div>
+      <div class="cat-title">Mesh</div>
+      <div class="cat-count">Section 6</div>
+    </div>
+    <div class="prod-grid">
+      <div class="prod-card"><span class="prod-partno">TES-MSH-NI-200</span><div class="prod-name">Nickel Mesh</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=200 µm</span><span class="prod-badge badge-type">Nickel</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-MSH-NI-200" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-MSH-NI-250</span><div class="prod-name">Nickel Mesh</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=250 µm</span><span class="prod-badge badge-type">Nickel</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-MSH-NI-250" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-MSH-AL-250</span><div class="prod-name">Aluminium Mesh</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=250 µm</span><span class="prod-badge badge-type">Aluminium</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-MSH-AL-250" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-MSH-SS316-200</span><div class="prod-name">Stainless Steel 316 Mesh</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=200 µm</span><span class="prod-badge badge-type">SS316</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-MSH-SS316-200" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-MSH-BRS-200</span><div class="prod-name">Brass Mesh</div><div class="prod-meta"><span class="prod-badge badge-spec">90×90 mm, T=200 µm</span><span class="prod-badge badge-type">Brass</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-MSH-BRS-200" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-MSH-CU-200</span><div class="prod-name">Copper Mesh</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=200 µm</span><span class="prod-badge badge-type">Copper</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-MSH-CU-200" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-MSH-TI-200</span><div class="prod-name">Titanium Mesh</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=200 µm</span><span class="prod-badge badge-type">Titanium</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-MSH-TI-200" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-MSH-TI-500</span><div class="prod-name">Titanium Mesh</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=500 µm</span><span class="prod-badge badge-type">Titanium</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-MSH-TI-500" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-MSH-TI-2000</span><div class="prod-name">Titanium Mesh</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=2000 µm</span><span class="prod-badge badge-type">Titanium</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-MSH-TI-2000" class="btn-enq">Enquire →</a></div></div>
+    </div>
+  </div>
+
+  <!-- ====== 8. CARBON MATERIALS ====== -->
+  <div class="cat-section" data-section="carbon">
+    <div class="cat-header reveal">
+      <div class="cat-icon-box">⬛</div>
+      <div class="cat-title">Carbon Materials</div>
+      <div class="cat-count">Section 7</div>
+    </div>
+
+    <div class="subcat">
+      <div class="subcat-title">Carbon Powders</div>
+      <div class="prod-grid">
+        <div class="prod-card"><span class="prod-partno">TES-CM-CBP-10</span><div class="prod-name">Carbon Black KB</div><div class="prod-meta"><span class="prod-badge badge-spec">Powder, 10 grams</span><span class="prod-badge badge-type">Carbon Black</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-CM-CBP-10" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-CM-HCP-50</span><div class="prod-name">Hard Carbon</div><div class="prod-meta"><span class="prod-badge badge-spec">Powder, 50 grams</span><span class="prod-badge badge-type">Hard Carbon</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-CM-HCP-50" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-CM-VCP-10</span><div class="prod-name">Vulcan Carbon</div><div class="prod-meta"><span class="prod-badge badge-spec">Powder, 10 grams</span><span class="prod-badge badge-type">Vulcan Carbon</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-CM-VCP-10" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-CM-ACP-50</span><div class="prod-name">Activated Carbon</div><div class="prod-meta"><span class="prod-badge badge-spec">Powder, 50 grams</span><span class="prod-badge badge-type">Activated Carbon</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-CM-ACP-50" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-CM-SPC-10</span><div class="prod-name">Super P Carbon</div><div class="prod-meta"><span class="prod-badge badge-spec">Powder, 10 grams</span><span class="prod-badge badge-type">Super P Carbon</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-CM-SPC-10" class="btn-enq">Enquire →</a></div></div>
+      </div>
+    </div>
+
+    <div class="subcat">
+      <div class="subcat-title">Carbon Papers & Cloth</div>
+      <div class="prod-grid">
+        <div class="prod-card"><span class="prod-partno">TES-CM-CP-200</span><div class="prod-name">Carbon Paper</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=200 µm</span><span class="prod-badge badge-type">Carbon Paper</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-CM-CP-200" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-CM-CP-400</span><div class="prod-name">Carbon Paper</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=400 µm</span><span class="prod-badge badge-type">Carbon Paper</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-CM-CP-400" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-CM-CPTFE-250</span><div class="prod-name">Carbon Paper 5% PTFE</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=250 µm</span><span class="prod-badge badge-type">Carbon Paper (PTFE)</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-CM-CPTFE-250" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-CM-CC-330</span><div class="prod-name">Carbon Cloth</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=330 µm</span><span class="prod-badge badge-type">Carbon Cloth</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-CM-CC-330" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-CM-CCCC-400</span><div class="prod-name">Carbon Coated Carbon Cloth</div><div class="prod-meta"><span class="prod-badge badge-spec">100×100 mm, T=400 µm</span><span class="prod-badge badge-type">Carbon Coated Cloth</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-CM-CCCC-400" class="btn-enq">Enquire →</a></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== 9. SEPARATORS ====== -->
+  <div class="cat-section" data-section="separator">
+    <div class="cat-header reveal">
+      <div class="cat-icon-box">🧱</div>
+      <div class="cat-title">Separators</div>
+      <div class="cat-count">Section 8</div>
+    </div>
+    <div class="prod-grid">
+      <div class="prod-card"><span class="prod-partno">TES-SP-PPPE-20</span><div class="prod-name">Separator PP-PE-PP (Three Layers)</div><div class="prod-meta"><span class="prod-badge badge-spec">5 m × 85 mm, T=20 µm</span><span class="prod-badge badge-type">PP-PE-PP</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-SP-PPPE-20" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-SP-PP-60</span><div class="prod-name">Separator PP (Single Layer)</div><div class="prod-meta"><span class="prod-badge badge-spec">5 m × 60 mm, T=20 µm</span><span class="prod-badge badge-type">PP Single</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-SP-PP-60" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-SP-PP-35</span><div class="prod-name">Separator PP (Single Layer)</div><div class="prod-meta"><span class="prod-badge badge-spec">5 m × 35 mm, T=25 µm</span><span class="prod-badge badge-type">PP Single</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-SP-PP-35" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-SP-PP-50</span><div class="prod-name">Separator PP (Single Layer)</div><div class="prod-meta"><span class="prod-badge badge-spec">5 m × 50 mm, T=25 µm</span><span class="prod-badge badge-type">PP Single</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-SP-PP-50" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-SP-PP-85</span><div class="prod-name">Separator PP (Single Layer)</div><div class="prod-meta"><span class="prod-badge badge-spec">5 m × 85 mm, T=25 µm</span><span class="prod-badge badge-type">PP Single</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-SP-PP-85" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-SP-CLS-35</span><div class="prod-name">Cellulose Based Separator</div><div class="prod-meta"><span class="prod-badge badge-spec">5 m × 100 mm, T=35 µm</span><span class="prod-badge badge-type">Cellulose</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-SP-CLS-35" class="btn-enq">Enquire →</a></div></div>
+    </div>
+  </div>
+
+  <!-- ====== 10. COIN CELL PARTS ====== -->
+  <div class="cat-section" data-section="coincell">
+    <div class="cat-header reveal">
+      <div class="cat-icon-box">🪙</div>
+      <div class="cat-title">Coin Cell Parts</div>
+      <div class="cat-count">Section 9</div>
+    </div>
+    <div class="prod-grid">
+      <div class="prod-card"><span class="prod-partno">TES-CCP-2016</span><div class="prod-name">CR2016 Coin Cell Parts (Upper, Lower, Spring & Spacer)</div><div class="prod-meta"><span class="prod-badge badge-spec">100 sets</span><span class="prod-badge badge-type">CR2016</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-CCP-2016" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-CCP-2025</span><div class="prod-name">CR2025 Coin Cell Parts (Upper, Lower, Spring & Spacer)</div><div class="prod-meta"><span class="prod-badge badge-spec">100 sets</span><span class="prod-badge badge-type">CR2025</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-CCP-2025" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-CCP-2032</span><div class="prod-name">CR2032 Coin Cell Parts (Upper, Lower, Spring & Spacer)</div><div class="prod-meta"><span class="prod-badge badge-spec">100 sets</span><span class="prod-badge badge-type">CR2032</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-CCP-2032" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-CCMP-2032</span><div class="prod-name">CR2032 Meshed Coin Cell Parts</div><div class="prod-meta"><span class="prod-badge badge-spec">100 sets</span><span class="prod-badge badge-type">CR2032 Meshed</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-CCMP-2032" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-CCH-1</span><div class="prod-name">Coin Cell Holder</div><div class="prod-meta"><span class="prod-badge badge-spec">1 Set</span><span class="prod-badge badge-type">Holder</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-CCH-1" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-CCP-DISC-8-20</span><div class="prod-name">Disc Cutter</div><div class="prod-meta"><span class="prod-badge badge-spec">1 Set</span><span class="prod-badge badge-type">Disc Cutter</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-CCP-DISC-8-20" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-CC-18650</span><div class="prod-name">18650 Cylindrical Cell Parts</div><div class="prod-meta"><span class="prod-badge badge-spec">1 set</span><span class="prod-badge badge-type">18650 Cylindrical</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-CC-18650" class="btn-enq">Enquire →</a></div></div>
+    </div>
+  </div>
+
+  <!-- ====== 11. ELECTROCHEMICAL CELLS ====== -->
+  <div class="cat-section" data-section="cells">
+    <div class="cat-header reveal">
+      <div class="cat-icon-box">⚗️</div>
+      <div class="cat-title">Electrochemical Cells</div>
+      <div class="cat-count">Section 11</div>
+    </div>
+    <div class="prod-grid">
+      <div class="prod-card"><span class="prod-partno">TES-ECELL-EC-20</span><div class="prod-name">Basic Electrochemical Cell (with Purge Tube)</div><div class="prod-meta"><span class="prod-badge badge-spec">20 mL</span><span class="prod-badge badge-type">Basic Cell</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-ECELL-EC-20" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-ECELL-EC-50</span><div class="prod-name">Basic Electrochemical Cell (with Purge Tube)</div><div class="prod-meta"><span class="prod-badge badge-spec">50 mL</span><span class="prod-badge badge-type">Basic Cell</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-ECELL-EC-50" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-ECELL-EC-100</span><div class="prod-name">Basic Electrochemical Cell (with Purge Tube)</div><div class="prod-meta"><span class="prod-badge badge-spec">100 mL</span><span class="prod-badge badge-type">Basic Cell</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-ECELL-EC-100" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-ECELL-HC-20</span><div class="prod-name">H-Type Cell (Each Compartment with Purge Tube)</div><div class="prod-meta"><span class="prod-badge badge-spec">20 mL</span><span class="prod-badge badge-type">H-Type</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-ECELL-HC-20" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-ECELL-HC-50</span><div class="prod-name">H-Type Cell (Each Compartment with Purge Tube)</div><div class="prod-meta"><span class="prod-badge badge-spec">50 mL</span><span class="prod-badge badge-type">H-Type</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-ECELL-HC-50" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-ECELL-HC-100</span><div class="prod-name">H-Type Cell (Each Compartment with Purge Tube)</div><div class="prod-meta"><span class="prod-badge badge-spec">100 mL</span><span class="prod-badge badge-type">H-Type</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-ECELL-HC-100" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-ECELL-CRC-100</span><div class="prod-name">Corrosion Cell 100 mL (Flat Cell with Purge Tube)</div><div class="prod-meta"><span class="prod-badge badge-spec">100 mL</span><span class="prod-badge badge-type">Corrosion Cell</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-ECELL-CRC-100" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-ECELL-CRC-250</span><div class="prod-name">Corrosion Cell 250 mL (with Purge Tube)</div><div class="prod-meta"><span class="prod-badge badge-spec">250 mL</span><span class="prod-badge badge-type">Corrosion Cell</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-ECELL-CRC-250" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-ECELL-CRC-500</span><div class="prod-name">Corrosion Cell 500 mL (with Purge Tube)</div><div class="prod-meta"><span class="prod-badge badge-spec">500 mL</span><span class="prod-badge badge-type">Corrosion Cell</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-ECELL-CRC-500" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-SSB-10</span><div class="prod-name">Solid State Battery Test Cell</div><div class="prod-meta"><span class="prod-badge badge-spec">1 set</span><span class="prod-badge badge-type">Solid State Battery</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-SSB-10" class="btn-enq">Enquire →</a></div></div>
+    </div>
+  </div>
+
+  <!-- ====== 12. MEMBRANES ====== -->
+  <div class="cat-section" data-section="membranes">
+    <div class="cat-header reveal">
+      <div class="cat-icon-box">🔬</div>
+      <div class="cat-title">Membranes</div>
+      <div class="cat-count">Section 14</div>
+    </div>
+
+    <div class="subcat">
+      <div class="subcat-title">PEM — Proton Exchange Membranes</div>
+      <div class="prod-grid">
+        <div class="prod-card"><span class="prod-partno">TES-MEM-PEM-150</span><div class="prod-name">Nafion 117 Membrane</div><div class="prod-meta"><span class="prod-badge badge-spec">L×W = 150×150 mm</span><span class="prod-badge badge-type">Nafion 117 (PEM)</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-MEM-PEM-150" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-MEM-PEM-100</span><div class="prod-name">Nafion 212 Membrane</div><div class="prod-meta"><span class="prod-badge badge-spec">L×W = 100×100 mm</span><span class="prod-badge badge-type">Nafion 212 (PEM)</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-MEM-PEM-100" class="btn-enq">Enquire →</a></div></div>
+      </div>
+    </div>
+
+    <div class="subcat">
+      <div class="subcat-title">AEM — Anion Exchange Membranes</div>
+      <div class="prod-grid">
+        <div class="prod-card"><span class="prod-partno">TES-MEM-AEM-100</span><div class="prod-name">Fuma Sep Anion Exchange Membrane</div><div class="prod-meta"><span class="prod-badge badge-spec">L×W = 100×100 mm</span><span class="prod-badge badge-type">AEM (Fuma Sep)</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-MEM-AEM-100" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-MEM-PPS-100</span><div class="prod-name">AEM PPS Based Membrane</div><div class="prod-meta"><span class="prod-badge badge-spec">L×W = 100×100 mm</span><span class="prod-badge badge-type">AEM (PPS)</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-MEM-PPS-100" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-MEM-AEMZ-100</span><div class="prod-name">ZIRFON PERL UTP 500 Anion Exchange Membrane</div><div class="prod-meta"><span class="prod-badge badge-spec">L×W = 100×100 mm</span><span class="prod-badge badge-type">AEM (ZIRFON)</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-MEM-AEMZ-100" class="btn-enq">Enquire →</a></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== 13. CELL FIXTURES ====== -->
+  <div class="cat-section" data-section="fixtures">
+    <div class="cat-header reveal">
+      <div class="cat-icon-box">🔧</div>
+      <div class="cat-title">Cell Fixtures</div>
+      <div class="cat-count">Section 15</div>
+    </div>
+
+    <div class="subcat">
+      <div class="subcat-title">PEM Electrolyser Cells</div>
+      <div class="prod-grid">
+        <div class="prod-card"><span class="prod-partno">TES-CF-PEM-5</span><div class="prod-name">PEM Electrolyser Fixture</div><div class="prod-meta"><span class="prod-badge badge-spec">L×B = 2.25×2.25 cm, SA=5 cm², Flow Through</span><span class="prod-badge badge-type">PEM Electrolyser</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-CF-PEM-5" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-CF-PEM-9</span><div class="prod-name">PEM Electrolyser Fixture</div><div class="prod-meta"><span class="prod-badge badge-spec">L×B = 3×3 cm, SA=9 cm², Flow Through</span><span class="prod-badge badge-type">PEM Electrolyser</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-CF-PEM-9" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-CF-PEM-25</span><div class="prod-name">PEM Electrolyser Fixture</div><div class="prod-meta"><span class="prod-badge badge-spec">L×B = 5×5 cm, SA=25 cm², Flow Through</span><span class="prod-badge badge-type">PEM Electrolyser</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-CF-PEM-25" class="btn-enq">Enquire →</a></div></div>
+      </div>
+    </div>
+
+    <div class="subcat">
+      <div class="subcat-title">AEM, Fuel Cell & Other Fixtures</div>
+      <div class="prod-grid">
+        <div class="prod-card"><span class="prod-partno">TES-CF-AEM-5</span><div class="prod-name">AEM Electrolyser Fixture</div><div class="prod-meta"><span class="prod-badge badge-spec">L×B = 2.25×2.25 cm, SA=5 cm²</span><span class="prod-badge badge-type">AEM Electrolyser</span></div><div class="prod-enquire"></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-CF-AEM-25</span><div class="prod-name">AEM Electrolyser Fixture</div><div class="prod-meta"><span class="prod-badge badge-spec">L×B = 5×5 cm, SA=25 cm²</span><span class="prod-badge badge-type">AEM Electrolyser</span></div><div class="prod-enquire"></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-CF-AEMS-08</span><div class="prod-name">AEM Electrolyser Fixture Stack</div><div class="prod-meta"><span class="prod-badge badge-spec">2.25×2.25 cm, SA=5 cm², 8 Stacks</span><span class="prod-badge badge-type">AEM Stack</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-CF-AEMS-08" class="btn-enq">Enquire →</div></div>
+        <div class="prod-card"><span class="prod-partno">TES-CF-FC-9</span><div class="prod-name">Fuel Cell Fixture</div><div class="prod-meta"><span class="prod-badge badge-spec">L×B = 3×3 cm, Working area=9 cm², Side Port</span><span class="prod-badge badge-type">Fuel Cell</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-CF-FC-9" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-CF-FC-25</span><div class="prod-name">Fuel Cell Fixture</div><div class="prod-meta"><span class="prod-badge badge-spec">L×B = 5×5 cm, Working area=25 cm², Side Port</span><span class="prod-badge badge-type">Fuel Cell</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-CF-FC-25" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-CF-RFB-25</span><div class="prod-name">Redox Flow Battery Cell Fixture</div><div class="prod-meta"><span class="prod-badge badge-spec">L×B = 5×5 cm, Working area=25 cm²</span><span class="prod-badge badge-type">Redox Flow Battery</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-CF-RFB-25" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-CF-CO2-1</span><div class="prod-name">CO₂ Reduction Cell</div><div class="prod-meta"><span class="prod-badge badge-spec">L×B = 1×1 cm, 3 Compartments, Working area=1 cm²</span><span class="prod-badge badge-type">CO₂ Reduction</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-CF-CO2-1" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-CF-CO2-4</span><div class="prod-name">CO₂ Reduction Cell</div><div class="prod-meta"><span class="prod-badge badge-spec">L×B = 2×2 cm, 3 Compartments, Working area=4 cm²</span><span class="prod-badge badge-type">CO₂ Reduction</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-CF-CO2-4" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-CF-CDI-9</span><div class="prod-name">Capacitive Deionization Cell (CDI)</div><div class="prod-meta"><span class="prod-badge badge-spec">L×B = 3×3 cm, Parallel Port, Working area=9 cm²</span><span class="prod-badge badge-type">CDI</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-CF-CDI-9" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-CF-CDI-25</span><div class="prod-name">Capacitive Deionization Cell (CDI)</div><div class="prod-meta"><span class="prod-badge badge-spec">L×B = 5×5 cm, Parallel Port, Working area=25 cm²</span><span class="prod-badge badge-type">CDI</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-CF-CDI-25" class="btn-enq">Enquire →</a></div></div>
+        <div class="prod-card"><span class="prod-partno">TES-CF-ZNB-10</span><div class="prod-name">Zinc Air / Aluminium Air / Metal Air Battery Cell</div><div class="prod-meta"><span class="prod-badge badge-spec">3 Compartments</span><span class="prod-badge badge-type">Air Battery</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-CF-ZNB-10" class="btn-enq">Enquire →</a></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== 14. MISC & ACCESSORIES ====== -->
+  <div class="cat-section" data-section="misc">
+    <div class="cat-header reveal">
+      <div class="cat-icon-box">🛠️</div>
+      <div class="cat-title">Misc & Accessories</div>
+      <div class="cat-count">Sections 12–13, 16</div>
+    </div>
+    <div class="prod-grid">
+      <div class="prod-card"><span class="prod-partno">TES-CMH-THR-1</span><div class="prod-name">Conductivity Sample Holder — Through Plane</div><div class="prod-meta"><span class="prod-badge badge-spec">1 set</span><span class="prod-badge badge-type">Conductivity Measurement</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-CMH-THR-1" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-CMH-IN-1</span><div class="prod-name">Conductivity Sample Holder — In Plane</div><div class="prod-meta"><span class="prod-badge badge-spec">1 set</span><span class="prod-badge badge-type">Conductivity Measurement</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-CMH-IN-1" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-CMH-ECCS-10</span><div class="prod-name">Environmental Controlled Conductivity Setup (Software Controlled)</div><div class="prod-meta"><span class="prod-badge badge-spec">1 set</span><span class="prod-badge badge-type">Conductivity Setup</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-CMH-ECCS-10" class="btn-enq">Enquire →</a></div></div>
+      <div class="prod-card"><span class="prod-partno">TES-CCM-DB-100</span><div class="prod-name">Doctor Blade (Coating Consumables)</div><div class="prod-meta"><span class="prod-badge badge-spec">1 set</span><span class="prod-badge badge-type">Coating</span></div><div class="prod-enquire"><a href="mailto:sales@theelectrodestore.com?subject=Enquiry: TES-CCM-DB-100" class="btn-enq">Enquire →</a></div></div>
+    </div>
+  </div>
+
+
+
+<!-- FOOTER -->
+<footer class="reveal">
+  <div>
+    <div class="footer-brand">Spark<span>Vy</span> Advanced Research</div>
+    <p>A Hub of Interdisciplinary Science. Coimbatore, Tamil Nadu, India.</p>
+    <p style="margin-top:10px;">GSTIN: 33FJPUK5952M1ZO</p>
+  </div>
+  <div>
+    <h4>Contact</h4>
+    <a href="mailto:Info@sparkvyresearchhub.com">Info@sparkvyresearchhub.com</a>
+    <a href="tel:04226794192">0422-6794192</a>
+    <a>+91 7708214927 (WhatsApp)</a>
+  </div>
+  <div>
+    <h4>Quick Links</h4>
+    <a href="index.html">Home</a>
+    <a href="products.html">Products</a>
+    <a href="services.html">Services</a>
+    <a href="index.html#about">About Us</a>
+  </div>
+</footer>
+<div class="footer-bottom">© 2025 <span>SparkVy</span> Advanced Research & Innovations. All rights reserved.</div>
+
+<script src="assets/chem-fx.js"></script>
+<script>
+  chemInjectFx('.page-hero .chem-fx-layer', { molecules: 3, bubbles: 6 });
+</script>
+<script>
+// Filter by category
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    const cat = this.dataset.cat;
+    document.querySelectorAll('.cat-section').forEach(sec => {
+      if (cat === 'all' || sec.dataset.section === cat) {
+        sec.classList.remove('hidden');
+      } else {
+        sec.classList.add('hidden');
+      }
+    });
+  });
+});
+</script>
+</body>
+</html>

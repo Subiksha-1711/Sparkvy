@@ -1,0 +1,1508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SparkVy – Service Registration</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link href="assets/chem-fx.css" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1a3a6b;
+    --deep: #142e54;
+    --blue: #1a3a6b;
+    --accent: #e8560a;
+    --accent-light: rgba(232,86,10,0.12);
+    --light: #eef3fb;
+    --white: #ffffff;
+    --text: #1e2a3a;
+    --muted: #6b7f99;
+    --border: #dde4ef;
+    --border-focus: #1a3a6b;
+    --bg: #f5f7fa;
+    --success: #16a34a;
+    --error: #dc2626;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ─── BACKGROUND ─── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 70% 50% at 10% 20%, rgba(26,74,138,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 90% 80%, rgba(240,127,30,0.07) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  /* ─── HEADER ─── */
+  /* ─── NAV ─── */
+  nav {
+    position: relative; z-index: 10;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 5%;
+    background: rgba(255,255,255,0.97); backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border); box-shadow: 0 2px 16px rgba(30,42,58,0.07);
+  }
+  .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .nav-logo img { height: 56px; object-fit: contain; }
+  .nav-brand { font-family: 'Playfair Display', serif; font-size: 1.35rem; font-weight: 900; color: var(--text); }
+  .nav-brand span { color: var(--accent); }
+  .nav-btn { background: var(--accent); color: #ffffff!important; padding: 9px 20px; border-radius: 4px; font-weight: 700!important; text-decoration: none; font-size: 0.86rem; letter-spacing: 0.04em; text-transform: uppercase; transition: background 0.3s; }
+  .nav-btn:hover { background: #c94706; }
+
+  .site-header {
+    background: linear-gradient(135deg, var(--navy) 0%, #0f2d5e 100%);
+    padding: 0 5%;
+    position: relative; overflow: hidden;
+  }
+  .site-header::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+  }
+  .header-inner {
+    max-width: 760px; margin: 0 auto;
+    padding: 40px 0 36px;
+    position: relative; z-index: 1;
+  }
+  .header-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(240,127,30,0.15); border: 1px solid rgba(240,127,30,0.3);
+    color: var(--accent); padding: 5px 14px; border-radius: 100px;
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 16px;
+  }
+  .brand { font-family: 'Playfair Display', serif; font-size: 1.7rem; font-weight: 900; color: white; margin-bottom: 6px; }
+  .brand span { color: var(--accent); }
+  .header-title { font-family: 'Playfair Display', serif; font-size: clamp(1.5rem,3.5vw,2.2rem); color: white; font-weight: 700; line-height: 1.25; margin-bottom: 10px; }
+  .header-title em { color: var(--accent); font-style: normal; }
+  .header-sub { color: rgba(255,255,255,0.6); font-size: 0.9rem; line-height: 1.7; max-width: 480px; }
+
+  /* ─── FORM CARD ─── */
+  .form-wrap {
+    max-width: 760px; margin: 40px auto 60px;
+    padding: 0 5%;
+    position: relative; z-index: 1;
+  }
+
+  .form-card {
+    background: white;
+    border-radius: 20px;
+    border: 1px solid rgba(26,74,138,0.1);
+    box-shadow: 0 8px 40px rgba(10,22,40,0.1);
+    overflow: hidden;
+  }
+
+  /* ─── SECTION HEADERS ─── */
+  .form-section-head {
+    display: flex; align-items: center; gap: 12px;
+    padding: 18px 28px;
+    background: var(--navy);
+    color: white;
+  }
+  .form-section-head .sh-icon { font-size: 1.15rem; }
+  .form-section-head h3 { font-size: 0.9rem; font-weight: 700; letter-spacing: 0.04em; }
+
+  .form-section-head.sub {
+    background: #f8faff;
+    border-top: 1px solid var(--border);
+    color: var(--navy);
+    padding: 14px 28px;
+  }
+  .form-section-head.sub h3 { font-size: 0.82rem; color: var(--blue); text-transform: uppercase; letter-spacing: 0.08em; }
+
+  /* ─── FORM BODY ─── */
+  .form-body { padding: 26px 28px; }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .form-grid .span2 { grid-column: 1 / -1; }
+
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label {
+    font-size: 0.8rem; font-weight: 600; color: var(--navy);
+    letter-spacing: 0.02em;
+  }
+  .field label .req { color: var(--accent); margin-left: 2px; }
+
+  .field input,
+  .field select,
+  .field textarea {
+    width: 100%; padding: 11px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 9px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem;
+    color: var(--text);
+    background: #fafbfd;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    outline: none;
+    appearance: none;
+  }
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    border-color: var(--border-focus);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(26,74,138,0.1);
+  }
+  .field input::placeholder,
+  .field textarea::placeholder { color: #b0bcc8; }
+
+  .field textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
+
+  /* ─── CUSTOM SELECT WRAPPER ─── */
+  .select-wrap { position: relative; }
+  .select-wrap::after {
+    content: '▾';
+    position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+    color: var(--muted); pointer-events: none; font-size: 0.85rem;
+  }
+  .select-wrap select { padding-right: 36px; cursor: pointer; }
+
+  /* ─── ANALYSIS MULTISELECT DROPDOWN ─── */
+  .analysis-wrap { position: relative; }
+
+  .analysis-trigger {
+    width: 100%; padding: 11px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 9px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem;
+    background: #fafbfd;
+    cursor: pointer;
+    text-align: left;
+    display: flex; align-items: center; justify-content: space-between;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    color: var(--text);
+    outline: none;
+  }
+  .analysis-trigger:focus,
+  .analysis-trigger.open {
+    border-color: var(--border-focus);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(26,74,138,0.1);
+  }
+  .analysis-trigger .placeholder { color: #b0bcc8; }
+  .analysis-trigger .arrow {
+    transition: transform 0.25s;
+    color: var(--muted); font-size: 0.85rem; flex-shrink: 0;
+  }
+  .analysis-trigger.open .arrow { transform: rotate(180deg); }
+
+  .analysis-dropdown {
+    display: none;
+    position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 200;
+    background: white;
+    border: 1.5px solid var(--border-focus);
+    border-radius: 12px;
+    box-shadow: 0 12px 40px rgba(10,22,40,0.15);
+    overflow: hidden;
+    animation: dropIn 0.2s ease;
+  }
+  .analysis-dropdown.open { display: block; }
+
+  @keyframes dropIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .dropdown-search {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .dropdown-search input {
+    border: none; outline: none; font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem; width: 100%; background: transparent; color: var(--text);
+  }
+  .dropdown-search input::placeholder { color: #b0bcc8; }
+  .dropdown-search .search-icon { color: var(--muted); font-size: 0.85rem; }
+
+  .dropdown-list { max-height: 280px; overflow-y: auto; }
+  .dropdown-list::-webkit-scrollbar { width: 5px; }
+  .dropdown-list::-webkit-scrollbar-track { background: #f4f7fc; }
+  .dropdown-list::-webkit-scrollbar-thumb { background: #c8d5e8; border-radius: 100px; }
+
+  .dropdown-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 16px; cursor: pointer;
+    transition: background 0.15s;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+  }
+  .dropdown-item:last-child { border-bottom: none; }
+  .dropdown-item:hover { background: var(--light); }
+  .dropdown-item.checked { background: rgba(26,74,138,0.05); }
+
+  .dropdown-item .cb {
+    width: 18px; height: 18px; flex-shrink: 0;
+    border: 2px solid var(--border); border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+    background: white;
+  }
+  .dropdown-item.checked .cb {
+    background: var(--blue); border-color: var(--blue);
+  }
+  .dropdown-item.checked .cb::after {
+    content: '✓'; color: white; font-size: 0.7rem; font-weight: 700;
+  }
+  .dropdown-item .item-text { font-size: 0.875rem; color: var(--text); }
+  .dropdown-item .item-num { font-size: 0.72rem; color: var(--muted); margin-left: auto; }
+
+  .dropdown-footer {
+    padding: 8px 14px;
+    border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+    background: #f8faff;
+  }
+  .dropdown-footer .count { font-size: 0.78rem; color: var(--blue); font-weight: 600; }
+  .dropdown-footer button {
+    font-size: 0.78rem; color: var(--muted); background: none; border: none; cursor: pointer; padding: 4px 8px; border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .dropdown-footer button:hover { background: white; color: var(--error); }
+
+  /* SELECTED TAGS */
+  .selected-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 8px; min-height: 0; }
+  .sel-tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: var(--light); border: 1px solid rgba(26,74,138,0.2);
+    color: var(--blue); padding: 4px 10px 4px 12px;
+    border-radius: 100px; font-size: 0.75rem; font-weight: 500;
+    animation: tagIn 0.2s ease;
+  }
+  @keyframes tagIn { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
+  .sel-tag .rm { cursor: pointer; color: var(--muted); font-size: 0.9rem; line-height: 1; transition: color 0.15s; }
+  .sel-tag .rm:hover { color: var(--error); }
+
+  /* ─── RADIO GROUP ─── */
+  .radio-group { display: flex; flex-wrap: wrap; gap: 10px; }
+  .radio-opt {
+    display: flex; align-items: center; gap: 8px;
+    padding: 9px 16px;
+    border: 1.5px solid var(--border); border-radius: 9px;
+    cursor: pointer; transition: all 0.18s;
+    font-size: 0.85rem; font-weight: 500;
+    background: #fafbfd;
+  }
+  .radio-opt:hover { border-color: var(--blue); background: var(--light); }
+  .radio-opt input[type="radio"] { display: none; }
+  .radio-dot {
+    width: 16px; height: 16px; border-radius: 50%;
+    border: 2px solid var(--border); background: white;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.18s; flex-shrink: 0;
+  }
+  .radio-opt input[type="radio"]:checked ~ .radio-dot {
+    border-color: var(--accent); background: var(--accent);
+  }
+  .radio-opt input[type="radio"]:checked ~ .radio-dot::after {
+    content: ''; width: 6px; height: 6px; border-radius: 50%; background: white;
+  }
+  .radio-opt:has(input:checked) { border-color: var(--accent); background: rgba(240,127,30,0.06); color: var(--navy); font-weight: 600; }
+
+  /* ─── PER-ANALYSIS SAMPLE DETAIL FORMS ─── */
+  #perAnalysisForms { display: flex; flex-direction: column; gap: 16px; margin-top: 6px; }
+
+  .analysis-form-card{
+
+    border:3px solid #1a3a6b;
+
+    border-radius:15px;
+
+    background:white;
+
+    box-shadow:0 8px 25px rgba(26,58,107,.18);
+
+    margin-bottom:20px;
+
+    animation:fadeCard .35s ease;
+
+}
+#analysisMessage{
+    display:none;
+    background:#d1fae5;
+    color:#065f46;
+    padding:14px;
+    border-radius:10px;
+    margin-bottom:18px;
+    font-weight:700;
+    font-size:15px;
+}
+
+.sampleHeading{
+    background:#e8560a;
+    color:white;
+    padding:15px;
+    border-radius:10px;
+    text-align:center;
+    margin-bottom:20px;
+    font-size:22px;
+}
+  .analysis-form-card-head{
+
+    background:linear-gradient(90deg,#1a3a6b,#2f5b9c);
+
+    color:white;
+
+    font-size:18px;
+
+    padding:18px;
+
+    font-weight:bold;
+}
+  .analysis-form-card-body { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+
+  .sample-row { border: 1.5px dashed var(--border); border-radius: 10px; padding: 14px; background: white; }
+  .sample-row-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px; font-size: 0.75rem; font-weight: 700;
+    color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .btn-remove-sample {
+    background: none; border: none; color: var(--error);
+    font-size: 0.75rem; font-weight: 700; cursor: pointer; padding: 0;
+  }
+  .btn-add-sample {
+    align-self: flex-start;
+    background: var(--accent-light); color: var(--accent);
+    border: 1.5px dashed var(--accent); padding: 8px 16px;
+    border-radius: 8px; font-weight: 700; font-size: 0.8rem;
+    cursor: pointer; transition: background 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .btn-add-sample:hover { background: rgba(232,86,10,0.2); }
+
+  /* ─── DIVIDER ─── */
+  .divider { height: 1px; background: var(--border); margin: 4px 0; }
+
+  /* ─── SUBMIT SECTION ─── */
+  .form-footer {
+    padding: 24px 28px;
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;
+    background: #f8faff;
+  }
+  .form-footer .note { font-size: 0.78rem; color: var(--muted); line-height: 1.5; max-width: 360px; }
+  .form-footer .note strong { color: var(--navy); }
+
+  .btn-submit {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: linear-gradient(135deg, var(--accent) 0%, #d96b0a 100%);
+    color: white; font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem; font-weight: 700;
+    padding: 13px 30px; border-radius: 10px; border: none;
+    cursor: pointer; transition: all 0.2s;
+    box-shadow: 0 4px 14px rgba(240,127,30,0.35);
+    white-space: nowrap;
+  }
+  .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(240,127,30,0.45); }
+  .btn-submit:active { transform: none; }
+
+  /* ─── SUCCESS MODAL ─── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 999;
+    background: rgba(10,22,40,0.6); backdrop-filter: blur(4px);
+    align-items: center; justify-content: center; padding: 20px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: white; border-radius: 20px; padding: 44px 40px;
+    text-align: center; max-width: 420px; width: 100%;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.2);
+    animation: modalIn 0.35s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes modalIn { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
+  .modal-icon { font-size: 3.5rem; margin-bottom: 16px; }
+  .modal h2 { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--navy); margin-bottom: 10px; }
+  .modal p { color: var(--muted); font-size: 0.88rem; line-height: 1.7; margin-bottom: 24px; }
+  .modal-ref { background: var(--light); border-radius: 10px; padding: 12px 20px; margin-bottom: 24px; font-size: 0.85rem; }
+  .modal-ref span { font-weight: 700; color: var(--blue); font-size: 1.05rem; }
+  .btn-close { background: var(--navy); color: white; border: none; padding: 11px 28px; border-radius: 9px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.88rem; }
+  @keyframes popIn{
+    from{
+        transform:scale(.95);
+        opacity:0;
+    }
+    to{
+        transform:scale(1);
+        opacity:1;
+    }
+}
+@keyframes fadeCard{
+
+from{
+
+opacity:0;
+
+transform:translateY(20px);
+
+}
+
+to{
+
+opacity:1;
+
+transform:translateY(0);
+
+}
+
+}
+  /* ─── SITE FOOTER ─── */
+  .site-footer {
+    background: var(--blue); padding: 40px 5% 24px;
+    display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 40px;
+  }
+  .footer-brand { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 900; color: #fff; margin-bottom: 10px; }
+  .footer-brand span { color: var(--accent); }
+  .site-footer p, .site-footer a { font-size: 0.83rem; color: rgba(255,255,255,0.65); text-decoration: none; display: block; margin-bottom: 8px; }
+  .site-footer h4 { font-size: 0.73rem; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.5); margin-bottom: 12px; font-weight: 700; }
+  .footer-bottom { padding: 16px 5%; text-align: center; border-top: 1px solid rgba(255,255,255,0.1); font-size: 0.75rem; color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.03); }
+  .footer-bottom span { color: var(--accent); }
+
+  /* ─── RESPONSIVE ─── */
+  @media(max-width: 600px) {
+    nav { padding: 10px 4%; }
+    .nav-logo img { height: 38px; }
+    .nav-brand { font-size: 1.1rem; }
+    .nav-btn { padding: 7px 14px; font-size: 0.74rem; }
+    .form-grid { grid-template-columns: 1fr; }
+    .form-body { padding: 20px 18px; }
+    .form-section-head { padding: 14px 18px; }
+    .form-footer { padding: 18px; flex-direction: column; }
+    .btn-submit { width: 100%; justify-content: center; }
+    .header-inner { padding: 30px 0 28px; }
+    .site-footer { grid-template-columns: 1fr; gap: 24px; padding: 32px 20px 20px; }
+    .footer-bottom { padding: 14px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo">
+    <img src="images/logo.jpeg" loading="lazy">
+    <span class="nav-brand">Spark<span>Vy</span></span>
+  </a>
+  <div style="display:flex; gap:10px; align-items:center;">
+    <a href="index.html" class="nav-btn">Back To Home</a>
+    <a href="#" class="nav-btn" onclick="handleLogout(event)">Logout</a>
+  </div>
+</nav>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="chem-fx-layer"></div>
+  <div class="header-inner reveal">
+    <div class="header-badge">🔬 SparkVy Advanced Research</div>
+    <h1 class="header-title">Service <em>Registration</em> Form</h1>
+    <p class="header-sub">Submit your details below to request analytical services. Our team will confirm your booking within 24 hours.</p>
+  </div>
+</header>
+
+<!-- FORM -->
+<div class="form-wrap">
+  <div class="form-card">
+
+    <!-- 1. PERSONAL INFO -->
+    <div class="form-section-head">
+      <span class="sh-icon">👤</span>
+      <h3>Personal Information</h3>
+    </div>
+    <div class="form-body">
+      <div class="form-grid">
+        <div class="field">
+          <label>Full Name <span class="req">*</span></label>
+          <input type="text" id="fullName" placeholder="e.g. Dr. Arun Kumar" required>
+        </div>
+        <div class="field">
+          <label>Email Address <span class="req">*</span></label>
+          <input type="email" id="email" placeholder="your@email.com" required>
+        </div>
+        <div class="field">
+          <label>Phone Number <span class="req">*</span></label>
+          <input type="tel" id="phone" placeholder="+91 XXXXX XXXXX" required>
+        </div>
+        <div class="field">
+          <label>WhatsApp Number</label>
+          <input type="tel" id="whatsapp" placeholder="Same as phone or different">
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- 2. INSTITUTE INFO -->
+    <div class="form-section-head sub">
+      <span class="sh-icon">🏛️</span>
+      <h3>Institute / Organisation Details</h3>
+    </div>
+    <div class="form-body">
+      <div class="form-grid">
+        <div class="field span2">
+          <label>Institution / Organisation Name <span class="req">*</span></label>
+          <input type="text" id="institution" placeholder="e.g. Anna University, Coimbatore" required>
+        </div>
+        <div class="field">
+          <label>Department</label>
+          <input type="text" id="department" placeholder="e.g. Chemistry, Materials Science">
+        </div>
+        <div class="field">
+          <label>Designation <span class="req">*</span></label>
+          <div class="select-wrap">
+            <select id="designation" required>
+              <option value="" disabled selected>Select designation</option>
+              <option>Research Scholar / PhD Student</option>
+              <option>Post-Doctoral Researcher</option>
+              <option>Assistant Professor</option>
+              <option>Associate Professor</option>
+              <option>Professor</option>
+              <option>UG Student</option>
+              <option>PG Student</option>
+              <option>Industry Professional</option>
+              <option>Others</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>City / State <span class="req">*</span></label>
+          <input type="text" id="city" placeholder="e.g. Coimbatore, Tamil Nadu" required>
+        </div>
+        <div class="field">
+          <label>GSTIN (if applicable)</label>
+          <input type="text" id="gstin" placeholder="22AAAAA0000A1Z5">
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- 3. ANALYSIS REQUIRED -->
+    <div class="form-section-head sub">
+      <span class="sh-icon">📊</span>
+      <h3>Analysis Required</h3>
+    </div>
+    <div class="form-body">
+      <div class="form-grid">
+        <div class="field span2">
+          <label>Select Analysis / Techniques Required <span class="req">*</span></label>
+
+          <!-- Custom multiselect -->
+          <div class="analysis-wrap">
+            <button type="button" class="analysis-trigger" id="analysisTrigger" onclick="toggleDropdown()">
+              <span class="placeholder" id="triggerText">Click to select analysis types…</span>
+              <span class="arrow">▾</span>
+            </button>
+
+            <div class="analysis-dropdown" id="analysisDropdown">
+              <div class="dropdown-search">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="dropdownSearch" placeholder="Search analysis…" oninput="filterDropdown(this.value)">
+              </div>
+              <div class="dropdown-list" id="dropdownList">
+                <!-- items injected by JS -->
+              </div>
+              <div class="dropdown-footer">
+                <span class="count" id="selCount">0 selected</span>
+                <button type="button" onclick="clearAll()">Clear all</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Selected tags -->
+          <div class="selected-tags" id="selectedTags"></div>
+        </div>
+
+        <!-- Dynamic per-analysis sample detail forms (common fields, shown once an analysis is selected) -->
+        <div class="field span2" id="perAnalysisWrap" style="display:none;">
+
+    <div id="analysisMessage"></div>
+
+    <h2 class="sampleHeading">
+        👇 Please Complete the Sample Details Below
+    </h2>
+
+    <div id="perAnalysisForms"></div>
+
+</div>
+
+        <div class="field span2">
+          <label>Specific Parameters / Notes for Analysis</label>
+          <textarea id="analysisNotes" placeholder="e.g. CV at scan rates 10, 20, 50 mV/s; EIS in frequency range 0.1–100 kHz; etc."></textarea>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="divider"></div>
+
+    <!-- 4. SERVICE TYPE -->
+    <div class="form-section-head sub">
+      <span class="sh-icon">🏷️</span>
+      <h3>Service Category & Delivery</h3>
+    </div>
+    <div class="form-body">
+      <div class="form-grid">
+        <div class="field">
+          <label>Client Type <span class="req">*</span></label>
+          <div class="radio-group" id="clientType">
+            <label class="radio-opt"><input type="radio" name="clientType" value="Academic"> <div class="radio-dot"></div> 🎓 Academic</label>
+            <label class="radio-opt"><input type="radio" name="clientType" value="Industry"> <div class="radio-dot"></div> 🏭 Industry</label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Urgency <span class="req">*</span></label>
+          <div class="radio-group">
+            <label class="radio-opt"><input type="radio" name="urgency" value="Normal"> <div class="radio-dot"></div> Normal</label>
+            <label class="radio-opt"><input type="radio" name="urgency" value="Urgent"> <div class="radio-dot"></div> ⚡ Urgent</label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Expected Delivery Date</label>
+          <input type="date" id="deliveryDate">
+        </div>
+        <div class="field">
+          <label>How did you hear about us?</label>
+          <div class="select-wrap">
+            <select id="referral">
+              <option value="" disabled selected>Select source</option>
+              <option>Google Search</option>
+              <option>LinkedIn</option>
+              <option>Instagram / Facebook</option>
+              <option>Colleague / Friend Referral</option>
+              <option>Conference / Workshop</option>
+              <option>Our Website</option>
+              <option>Others</option>
+            </select>
+          </div>
+        </div>
+        <div class="field span2">
+          <label>Any Other Requirements or Questions</label>
+          <textarea id="otherReqs" placeholder="Feel free to add any other information you'd like us to know…"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER / SUBMIT -->
+    <div class="form-footer">
+      <p class="note">
+        <strong>Fields marked * are required.</strong><br>
+        By submitting, you agree that sample data will be used for analysis purposes only. Our team will contact you within <strong>24 hours</strong> for confirmation.
+      </p>
+      <button type="button" class="btn-submit" onclick="submitForm()">
+        Submit Registration →
+      </button>
+    </div>
+
+  </div><!-- /form-card -->
+</div><!-- /form-wrap -->
+
+<!-- FOOTER -->
+<footer class="site-footer reveal">
+  <div>
+    <div class="footer-brand">Spark<span>Vy</span> Advanced Research</div>
+    <p>A Hub of Interdisciplinary Science. Coimbatore, Tamil Nadu, India.</p>
+    <p style="margin-top:10px;">GSTIN: 33FJPUK5952M1ZO</p>
+  </div>
+  <div>
+    <h4>Contact</h4>
+    <a href="mailto:Info@sparkvyresearchhub.com">Info@sparkvyresearchhub.com</a>
+    <a href="tel:04226794192">0422-6794192</a>
+    <a>+91 7708214927 (WhatsApp)</a>
+  </div>
+  <div>
+    <h4>Quick Links</h4>
+    <a href="index.html">Home</a>
+    <a href="products.html">Products</a>
+    <a href="services.html">Services</a>
+    <a href="index.html#about">About Us</a>
+  </div>
+</footer>
+<div class="footer-bottom">© 2025 <span>SparkVy</span> Advanced Research &amp; Innovations. All rights reserved.</div>
+
+<!-- SUCCESS MODAL -->
+<div class="modal-overlay" id="successModal">
+  <div class="modal">
+    <div class="modal-icon">✅</div>
+    <h2>Registration Submitted!</h2>
+    <p>Thank you for registering with SparkVy. Our team will review your request and get back to you within 24 hours.</p>
+    <div class="modal-ref">Reference ID: <span id="refId">—</span></div>
+    <p style="font-size:0.8rem;color:#64748b;margin-bottom:20px;">
+      📧 A confirmation will be sent to your email.<br>
+      📞 For urgent queries: <strong>+91 7708214927</strong>
+    </p>
+    <button class="btn-close" onclick="closeModal()">Close</button>
+  </div>
+</div>
+
+<script>
+  // ── ANALYSIS OPTIONS (from the handwritten list)
+  const ANALYSIS_OPTIONS = [
+    { id: 1,  label: 'UV-Vis' },
+    { id: 2,  label: 'Photoluminescence' },
+    { id: 3,  label: 'FTIR' },
+    { id: 4,  label: 'Raman' },
+    { id: 5,  label: 'XRD' },
+    { id: 6,  label: 'FESEM + EDS' },
+    { id: 7,  label: 'FESEM + EDS + Mapping' },
+    { id: 8,  label: 'HRTEM + EDS + SAED' },
+    { id: 9,  label: 'EDAX' },
+    { id: 10, label: 'HRTEM + EDS + SAED + Mapping' },
+    { id: 11, label: 'XPS' },
+    { id: 12, label: 'BET' },
+    { id: 14, label: 'HPLC' },
+    { id: 15, label: 'GCMS' },
+    { id: 16, label: 'NMR' },
+  ];
+
+  let selected = new Set();
+
+  // Build dropdown items
+  function buildList(filter = '') {
+    const list = document.getElementById('dropdownList');
+    list.innerHTML = '';
+    const q = filter.toLowerCase();
+    ANALYSIS_OPTIONS
+      .filter(o => o.label.toLowerCase().includes(q))
+      .forEach(o => {
+        const div = document.createElement('div');
+        div.className = 'dropdown-item' + (selected.has(o.id) ? ' checked' : '');
+        div.innerHTML = `
+          <div class="cb"></div>
+          <span class="item-text">${o.label}</span>
+          <span class="item-num">${o.id < 10 ? '0' + o.id : o.id}</span>`;
+        div.addEventListener('click', () => toggleItem(o.id));
+        list.appendChild(div);
+      });
+  }
+
+  function toggleItem(id) {
+    if (selected.has(id)) selected.delete(id);
+    else selected.add(id);
+    buildList(document.getElementById('dropdownSearch').value);
+    renderTags();
+    updateTrigger();
+    renderPerAnalysisForms();
+    const opt = ANALYSIS_OPTIONS.find(o => o.id === id);
+
+const msg = document.getElementById("analysisMessage");
+
+msg.style.display = "block";
+
+msg.innerHTML =
+`✅ Please enter the sample details for <strong>${opt.label}</strong> below.`;
+  }
+
+  function renderTags() {
+    const wrap = document.getElementById('selectedTags');
+    wrap.innerHTML = '';
+    document.getElementById('selCount').textContent = selected.size + ' selected';
+    [...selected].forEach(id => {
+      const opt = ANALYSIS_OPTIONS.find(o => o.id === id);
+      if (!opt) return;
+      const tag = document.createElement('div');
+      tag.className = 'sel-tag';
+      const completed =
+(sampleDetailsData[id] &&
+ sampleDetailsData[id].every(s=>s.sampleCode));
+
+tag.innerHTML =
+`${completed ? "✅ " : ""}
+${opt.label}
+<span class="rm"
+onclick="removeTag(${id})">✕</span>`;
+      wrap.appendChild(tag);
+    });
+  }
+
+  function removeTag(id) {
+    selected.delete(id);
+    buildList(document.getElementById('dropdownSearch').value);
+    renderTags();
+    updateTrigger();
+    renderPerAnalysisForms();
+    const wrap = document.getElementById('selectedTags');
+    setTimeout(() => {
+      wrap.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    }, 150);
+  }
+
+  function clearAll() {
+    selected.clear();
+    buildList(document.getElementById('dropdownSearch').value);
+    renderTags();
+    updateTrigger();
+    renderPerAnalysisForms();
+  }
+
+  function updateTrigger() {
+    const el = document.getElementById('triggerText');
+    if (selected.size === 0) {
+      el.innerHTML = '<span class="placeholder">Click to select analysis types…</span>';
+    } else {
+      el.innerHTML = `<strong>${selected.size} analysis type${selected.size > 1 ? 's' : ''} selected</strong>`;
+    }
+  }
+
+  // ── PER-ANALYSIS SAMPLE DETAIL FORMS
+  // Common fields shown automatically for every analysis the user selects
+  // (Sample Code, Nature of Sample, Toxicity, Moisture Sensitivity, Handling Procedure)
+  const SESSION_KEY = 'sparkvy_session';
+  let sampleDetailsData = {}; // { [analysisId]: [ {sampleCode, nature, toxicity, moisture, handling, ...}, ... ] }
+
+  function getSession() {
+    // Read the authentication/session object stored by the login flow.
+    return JSON.parse(sessionStorage.getItem(SESSION_KEY) || 'null');
+  }
+
+  function clearAuthSession() {
+    // Remove only authentication/session-related keys.
+    sessionStorage.removeItem(SESSION_KEY);
+    localStorage.removeItem(SESSION_KEY);
+    document.cookie = SESSION_KEY + '=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
+  }
+
+  function requireAuthentication() {
+    // Redirect immediately if the user is not authenticated.
+    if (!getSession()) {
+      window.location.replace('index.html');
+      return false;
+    }
+    return true;
+  }
+
+  function isXRDAnalysis(analysisId) {
+    return ANALYSIS_OPTIONS.find(o => o.id === analysisId)?.label === 'XRD';
+  }
+
+  function isFESEMANalysis(analysisId) {
+    return ANALYSIS_OPTIONS.find(o => o.id === analysisId)?.label === 'FESEM + EDS';
+  }
+
+  function isHRTEMAnalysis(analysisId) {
+    const label = ANALYSIS_OPTIONS.find(o => o.id === analysisId)?.label || '';
+    return label.includes('HRTEM');
+  }
+
+  function isXPSAnalysis(analysisId) {
+    return ANALYSIS_OPTIONS.find(o => o.id === analysisId)?.label === 'XPS';
+  }
+
+  function isBETAnalysis(analysisId) {
+    return ANALYSIS_OPTIONS.find(o => o.id === analysisId)?.label === 'BET';
+  }
+
+  function isHPLCAnalysis(analysisId) {
+    return ANALYSIS_OPTIONS.find(o => o.id === analysisId)?.label === 'HPLC';
+  }
+
+  function isNMRAnalysis(analysisId) {
+    return ANALYSIS_OPTIONS.find(o => o.id === analysisId)?.label === 'NMR';
+  }
+
+  function emptySample(analysisId) {
+    const sample = { sampleCode: '', nature: '', toxicity: '', moisture: '', handling: '' };
+    if (isXRDAnalysis(analysisId)) {
+      sample.diffractionFrom = '';
+      sample.diffractionTo = '';
+      sample.scanType = '';
+    }
+    if (isFESEMANalysis(analysisId)) {
+      sample.magnification = '';
+      sample.elementsEDS = '';
+      sample.expectedMorphology = '';
+      sample.structureDetails = '';
+    }
+    if (isHRTEMAnalysis(analysisId)) {
+      sample.elementsEDS = '';
+      sample.expectedMorphology = '';
+    }
+    if (isBETAnalysis(analysisId)) {
+      sample.techniqueRequested = '';
+      sample.composition = '';
+      sample.analysisCondition = '';
+    }
+    if (isHPLCAnalysis(analysisId)) {
+      sample.compoundToBeAnalyzed = '';
+      sample.solventName = '';
+    }
+    if (isNMRAnalysis(analysisId)) {
+      sample.solvent = '';
+      sample.otherSolvent = '';
+      sample.nuclei = [];
+    }
+    if (isXPSAnalysis(analysisId)) {
+      sample.chemicalComposition = '';
+      sample.elementsToBeIdentified = '';
+      sample.scanType = '';
+      sample.sampleProperty = '';
+    }
+    return sample;
+  }
+
+  function escapeHtml(str) {
+    return String(str == null ? '' : str).replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+
+  // Keep sampleDetailsData in sync with the current analysis selection:
+  // adding a blank sample entry for newly selected analyses, and dropping
+  // data for analyses that get deselected.
+  function syncSampleDetailsWithSelection() {
+    selected.forEach(id => {
+      if (!sampleDetailsData[id]) sampleDetailsData[id] = [emptySample(id)];
+    });
+    Object.keys(sampleDetailsData).forEach(id => {
+      if (!selected.has(Number(id))) delete sampleDetailsData[id];
+    });
+  }
+
+  function addSampleRow(analysisId) {
+    sampleDetailsData[analysisId].push(emptySample(analysisId));
+    renderPerAnalysisForms();
+  }
+
+  function removeSampleRow(analysisId, idx) {
+    sampleDetailsData[analysisId].splice(idx, 1);
+    if (sampleDetailsData[analysisId].length === 0) sampleDetailsData[analysisId].push(emptySample(analysisId));
+    renderPerAnalysisForms();
+  }
+
+  function updateSampleField(analysisId, idx, field, value) {
+    if (sampleDetailsData[analysisId] && sampleDetailsData[analysisId][idx]) {
+      sampleDetailsData[analysisId][idx][field] = value;
+      renderTags();
+    }
+  }
+
+  function handleFESEMExpectedMorphologyChange(analysisId, idx, value, selectEl) {
+    updateSampleField(analysisId, idx, 'expectedMorphology', value);
+    if (value !== 'Structure (if any)') {
+      updateSampleField(analysisId, idx, 'structureDetails', '');
+    }
+    const structureRow = document.getElementById(`structure-details-${analysisId}-${idx}`);
+    if (structureRow) {
+      structureRow.style.display = value === 'Structure (if any)' ? '' : 'none';
+    }
+  }
+
+  function handleNMRSolventChange(analysisId, idx, value) {
+    updateSampleField(analysisId, idx, 'solvent', value);
+    if (value !== 'Others') {
+      updateSampleField(analysisId, idx, 'otherSolvent', '');
+    }
+  }
+
+  function toggleNMRNucleus(analysisId, idx, nucleus) {
+    const sample = sampleDetailsData[analysisId]?.[idx];
+    if (!sample) return;
+    const nuclei = Array.isArray(sample.nuclei) ? [...sample.nuclei] : [];
+    const has = nuclei.includes(nucleus);
+    sample.nuclei = has ? nuclei.filter(n => n !== nucleus) : [...nuclei, nucleus];
+    renderTags();
+    renderPerAnalysisForms();
+  }
+
+  const SAMPLE_NATURE_OPTIONS = ['Powder', 'Thin Film', 'Solution / Liquid', 'Electrode (Coated)', 'Pellet', 'Bulk', 'Others'];
+
+  function sampleRowHTML(analysisId, idx, s, total) {
+    return `
+      <div class="sample-row">
+        <div class="sample-row-head">
+          <span>Sample ${idx + 1}</span>
+          ${total > 1 ? `<button type="button" class="btn-remove-sample" onclick="removeSampleRow(${analysisId}, ${idx})">✕ Remove</button>` : ''}
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Sample Code <span class="req">*</span></label>
+            <input type="text" value="${escapeHtml(s.sampleCode)}" placeholder="e.g. S-01"
+              oninput="updateSampleField(${analysisId}, ${idx}, 'sampleCode', this.value)">
+          </div>
+          <div class="field">
+            <label>Nature of Sample</label>
+            <div class="select-wrap">
+              <select onchange="updateSampleField(${analysisId}, ${idx}, 'nature', this.value)">
+                <option value="" ${!s.nature ? 'selected' : ''} disabled>Select nature</option>
+                ${SAMPLE_NATURE_OPTIONS.map(n => `<option ${s.nature === n ? 'selected' : ''}>${n}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label>Toxicity <span class="req">*</span></label>
+            <div class="radio-group">
+              <label class="radio-opt"><input type="radio" name="tox-${analysisId}-${idx}" ${s.toxicity === 'Yes' ? 'checked' : ''} onchange="updateSampleField(${analysisId}, ${idx}, 'toxicity', 'Yes')"> <div class="radio-dot"></div> Yes</label>
+              <label class="radio-opt"><input type="radio" name="tox-${analysisId}-${idx}" ${s.toxicity === 'No' ? 'checked' : ''} onchange="updateSampleField(${analysisId}, ${idx}, 'toxicity', 'No')"> <div class="radio-dot"></div> No</label>
+            </div>
+          </div>
+          <div class="field">
+            <label>Sensitive to Moisture</label>
+            <div class="radio-group">
+              <label class="radio-opt"><input type="radio" name="moist-${analysisId}-${idx}" ${s.moisture === 'Yes' ? 'checked' : ''} onchange="updateSampleField(${analysisId}, ${idx}, 'moisture', 'Yes')"> <div class="radio-dot"></div> Yes</label>
+              <label class="radio-opt"><input type="radio" name="moist-${analysisId}-${idx}" ${s.moisture === 'No' ? 'checked' : ''} onchange="updateSampleField(${analysisId}, ${idx}, 'moisture', 'No')"> <div class="radio-dot"></div> No</label>
+            </div>
+          </div>
+          <div class="field span2">
+            <label>Any Handling Procedure</label>
+            <textarea placeholder="Describe any special handling procedure required…"
+              oninput="updateSampleField(${analysisId}, ${idx}, 'handling', this.value)">${escapeHtml(s.handling)}</textarea>
+          </div>
+          ${isNMRAnalysis(analysisId) ? `
+          <div class="field">
+            <label>Solvent <span class="req">*</span></label>
+            <div class="select-wrap">
+              <select onchange="handleNMRSolventChange(${analysisId}, ${idx}, this.value)">
+                <option value="" ${!s.solvent ? 'selected' : ''} disabled>Select Solvent</option>
+                <option value="Chloroform (CDCl₃)" ${s.solvent === 'Chloroform (CDCl₃)' ? 'selected' : ''}>Chloroform (CDCl₃)</option>
+                <option value="Dimethyl Sulfoxide (DMSO-d₆)" ${s.solvent === 'Dimethyl Sulfoxide (DMSO-d₆)' ? 'selected' : ''}>Dimethyl Sulfoxide (DMSO-d₆)</option>
+                <option value="Water (D₂O)" ${s.solvent === 'Water (D₂O)' ? 'selected' : ''}>Water (D₂O)</option>
+                <option value="Acetone ((CD₃)₂CO)" ${s.solvent === 'Acetone ((CD₃)₂CO)' ? 'selected' : ''}>Acetone ((CD₃)₂CO)</option>
+                <option value="Others" ${s.solvent === 'Others' ? 'selected' : ''}>Others</option>
+              </select>
+            </div>
+          </div>
+          <div class="field" style="display:${s.solvent === 'Others' ? '' : 'none'};" id="nmr-other-solvent-${analysisId}-${idx}">
+            <label>Specify Solvent <span class="req">*</span></label>
+            <input type="text" value="${escapeHtml(s.otherSolvent)}" placeholder="Enter solvent name"
+              oninput="updateSampleField(${analysisId}, ${idx}, 'otherSolvent', this.value)">
+          </div>
+          <div class="field span2">
+            <label>Nuclei <span class="req">*</span></label>
+            <div class="checkbox-group" style="display:flex; gap:12px; flex-wrap:wrap;">
+              ${['¹H','¹⁹F','³¹P','¹³C'].map(nuc => `
+                <label class="checkbox-opt" style="display:flex; align-items:center; gap:6px;">
+                  <input type="checkbox" ${s.nuclei && s.nuclei.includes(nuc) ? 'checked' : ''} onchange="toggleNMRNucleus(${analysisId}, ${idx}, '${nuc}')">
+                  ${nuc}
+                </label>
+              `).join('')}
+            </div>
+          </div>
+          ` : ''}
+          ${isHPLCAnalysis(analysisId) ? `
+          <div class="field">
+            <label>Compound to be Analyzed <span class="req">*</span></label>
+            <input type="text" value="${escapeHtml(s.compoundToBeAnalyzed)}" placeholder="e.g. Caffeine, Aspirin, Vitamin C"
+              oninput="updateSampleField(${analysisId}, ${idx}, 'compoundToBeAnalyzed', this.value)">
+          </div>
+          <div class="field">
+            <label>Solvent Name <span class="req">*</span></label>
+            <input type="text" value="${escapeHtml(s.solventName)}" placeholder="e.g. Methanol, Acetonitrile, Water"
+              oninput="updateSampleField(${analysisId}, ${idx}, 'solventName', this.value)">
+          </div>
+          ` : ''}
+          ${isBETAnalysis(analysisId) ? `
+          <div class="field">
+            <label>Technique Requested <span class="req">*</span></label>
+            <div class="select-wrap">
+              <select onchange="updateSampleField(${analysisId}, ${idx}, 'techniqueRequested', this.value)">
+                <option value="" ${!s.techniqueRequested ? 'selected' : ''} disabled>Select Technique</option>
+                <option value="Specific Surface Area" ${s.techniqueRequested === 'Specific Surface Area' ? 'selected' : ''}>Specific Surface Area</option>
+                <option value="Pore Size Distribution (BJH)" ${s.techniqueRequested === 'Pore Size Distribution (BJH)' ? 'selected' : ''}>Pore Size Distribution (BJH)</option>
+                <option value="Adsorption–Desorption Isotherm" ${s.techniqueRequested === 'Adsorption–Desorption Isotherm' ? 'selected' : ''}>Adsorption–Desorption Isotherm</option>
+                <option value="Micropore Analysis (BJH)" ${s.techniqueRequested === 'Micropore Analysis (BJH)' ? 'selected' : ''}>Micropore Analysis (BJH)</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label>Composition <span class="req">*</span></label>
+            <input type="text" value="${escapeHtml(s.composition)}" placeholder="e.g. Activated Carbon, Zeolite, Silica, Metal Oxide"
+              oninput="updateSampleField(${analysisId}, ${idx}, 'composition', this.value)">
+          </div>
+          <div class="field">
+            <label>Analysis Conditions Required <span class="req">*</span></label>
+            <div class="select-wrap">
+              <select onchange="updateSampleField(${analysisId}, ${idx}, 'analysisCondition', this.value)">
+                <option value="" ${!s.analysisCondition ? 'selected' : ''} disabled>Select Analysis Condition</option>
+                <option value="Nitrogen at 77 K" ${s.analysisCondition === 'Nitrogen at 77 K' ? 'selected' : ''}>Nitrogen at 77 K</option>
+                <option value="Nitrogen at Room Temperature (RT)" ${s.analysisCondition === 'Nitrogen at Room Temperature (RT)' ? 'selected' : ''}>Nitrogen at Room Temperature (RT)</option>
+                <option value="CO₂ at Desired Temperature" ${s.analysisCondition === 'CO₂ at Desired Temperature' ? 'selected' : ''}>CO₂ at Desired Temperature</option>
+              </select>
+            </div>
+          </div>
+          ` : ''}
+          ${isXPSAnalysis(analysisId) ? `
+          <div class="field">
+            <label>Sample Property</label>
+            <div class="select-wrap">
+              <select onchange="updateSampleField(${analysisId}, ${idx}, 'sampleProperty', this.value)">
+                <option value="" ${!s.sampleProperty ? 'selected' : ''} disabled>Select Sample Property</option>
+                <option value="Conductive" ${s.sampleProperty === 'Conductive' ? 'selected' : ''}>Conductive</option>
+                <option value="Non Conductive" ${s.sampleProperty === 'Non Conductive' ? 'selected' : ''}>Non Conductive</option>
+                <option value="Semi Conductive" ${s.sampleProperty === 'Semi Conductive' ? 'selected' : ''}>Semi Conductive</option>
+              </select>
+            </div>
+          </div>
+          ` : ''}
+          ${isHRTEMAnalysis(analysisId) ? `
+          <div class="field">
+            <label>Elements for EDS <span class="req">*</span></label>
+            <input type="text" value="${escapeHtml(s.elementsEDS)}" placeholder="e.g. C, O, Si, Fe"
+              oninput="updateSampleField(${analysisId}, ${idx}, 'elementsEDS', this.value)">
+          </div>
+          <div class="field span2">
+            <label>Expected Morphology <span class="req">*</span></label>
+            <textarea placeholder="Describe the expected morphology..."
+              oninput="updateSampleField(${analysisId}, ${idx}, 'expectedMorphology', this.value)">${escapeHtml(s.expectedMorphology)}</textarea>
+          </div>
+          ` : ''}
+          ${isXPSAnalysis(analysisId) ? `
+          <div class="field">
+            <label>Chemical Composition <span class="req">*</span></label>
+            <input type="text" value="${escapeHtml(s.chemicalComposition)}" placeholder="e.g. TiO₂, SiO₂, Al₂O₃"
+              oninput="updateSampleField(${analysisId}, ${idx}, 'chemicalComposition', this.value)">
+          </div>
+          <div class="field">
+            <label>Elements to be Identified <span class="req">*</span></label>
+            <input type="text" value="${escapeHtml(s.elementsToBeIdentified)}" placeholder="e.g. C, O, Ti, Si"
+              oninput="updateSampleField(${analysisId}, ${idx}, 'elementsToBeIdentified', this.value)">
+          </div>
+          <div class="field span2">
+            <label>Type of Scan <span class="req">*</span></label>
+            <div class="select-wrap">
+              <select onchange="updateSampleField(${analysisId}, ${idx}, 'scanType', this.value)">
+                <option value="" ${!s.scanType ? 'selected' : ''} disabled>Select Scan Type</option>
+                <option value="Survey Scan" ${s.scanType === 'Survey Scan' ? 'selected' : ''}>Survey Scan</option>
+                <option value="Narrow Scan" ${s.scanType === 'Narrow Scan' ? 'selected' : ''}>Narrow Scan</option>
+                <option value="Area Scan" ${s.scanType === 'Area Scan' ? 'selected' : ''}>Area Scan</option>
+                <option value="Line Scan" ${s.scanType === 'Line Scan' ? 'selected' : ''}>Line Scan</option>
+                <option value="Mapping" ${s.scanType === 'Mapping' ? 'selected' : ''}>Mapping</option>
+                <option value="Depth Profile" ${s.scanType === 'Depth Profile' ? 'selected' : ''}>Depth Profile</option>
+              </select>
+            </div>
+          </div>
+          ` : ''}
+          ${isFESEMANalysis(analysisId) ? `
+          <div class="field">
+            <label>Magnification (if any) <span class="req">*</span></label>
+            <input type="text" value="${escapeHtml(s.magnification)}" placeholder="e.g. 5,000x or 20,000x"
+              oninput="updateSampleField(${analysisId}, ${idx}, 'magnification', this.value)">
+          </div>
+          <div class="field">
+            <label>Elements for EDS <span class="req">*</span></label>
+            <input type="text" value="${escapeHtml(s.elementsEDS)}" placeholder="e.g. C, O, Si, Fe"
+              oninput="updateSampleField(${analysisId}, ${idx}, 'elementsEDS', this.value)">
+          </div>
+          <div class="field span2">
+            <label>Expected Morphology <span class="req">*</span></label>
+            <div class="select-wrap">
+              <select onchange="handleFESEMExpectedMorphologyChange(${analysisId}, ${idx}, this.value, this)">
+                <option value="" ${!s.expectedMorphology ? 'selected' : ''} disabled>Select Morphology</option>
+                <option value="Structure (if any)" ${s.expectedMorphology === 'Structure (if any)' ? 'selected' : ''}>Structure (if any)</option>
+                <option value="No Specific Structure" ${s.expectedMorphology === 'No Specific Structure' ? 'selected' : ''}>No Specific Structure</option>
+                <option value="No Idea" ${s.expectedMorphology === 'No Idea' ? 'selected' : ''}>No Idea</option>
+              </select>
+            </div>
+          </div>
+          <div class="field span2" style="display:${s.expectedMorphology === 'Structure (if any)' ? '' : 'none'};" id="structure-details-${analysisId}-${idx}">
+            <label>Specify Structure <span class="req">*</span></label>
+            <input type="text" value="${escapeHtml(s.structureDetails)}" placeholder="Describe the expected structure..."
+              oninput="updateSampleField(${analysisId}, ${idx}, 'structureDetails', this.value)">
+          </div>
+          ` : ''}
+          ${isXRDAnalysis(analysisId) ? `
+          <div class="field">
+            <label>Diffraction Angle Required - From</label>
+            <input type="number" value="${escapeHtml(s.diffractionFrom)}" placeholder="e.g. 10"
+              oninput="updateSampleField(${analysisId}, ${idx}, 'diffractionFrom', this.value)">
+          </div>
+          <div class="field">
+            <label>Diffraction Angle Required - To</label>
+            <input type="number" value="${escapeHtml(s.diffractionTo)}" placeholder="e.g. 80"
+              oninput="updateSampleField(${analysisId}, ${idx}, 'diffractionTo', this.value)">
+          </div>
+          <div class="field span2">
+            <label>Scan Type</label>
+            <div class="select-wrap">
+              <select onchange="updateSampleField(${analysisId}, ${idx}, 'scanType', this.value)">
+                <option value="" ${!s.scanType ? 'selected' : ''} disabled>Select Scan Type</option>
+                <option value="Normal Scan" ${s.scanType === 'Normal Scan' ? 'selected' : ''}>Normal Scan</option>
+                <option value="Low Scan" ${s.scanType === 'Low Scan' ? 'selected' : ''}>Low Scan</option>
+              </select>
+            </div>
+          </div>
+          ` : ''}
+        </div>
+      </div>`;
+  }
+  function analysisCardHTML(id, label, samples) {
+    return `
+      <div class="analysis-form-card">
+        <div class="analysis-form-card-head">${escapeHtml(label)}</div>
+        <div class="analysis-form-card-body">
+          ${samples.map((s, idx) => sampleRowHTML(id, idx, s, samples.length)).join('')}
+          <div class="analysis-form-actions">
+            <button type="button" class="btn-add-sample" onclick="addSampleRow(${id})">+ Add another sample</button>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function renderPerAnalysisForms() {
+    syncSampleDetailsWithSelection();
+    const wrap = document.getElementById('perAnalysisWrap');
+    const container = document.getElementById('perAnalysisForms');
+
+    if (selected.size === 0) {
+      wrap.style.display = 'none';
+      container.innerHTML = '';
+      return;
+    }
+
+    wrap.style.display = '';
+    container.innerHTML = [...selected].map(id => {
+      const opt = ANALYSIS_OPTIONS.find(o => o.id === id);
+      const samples = sampleDetailsData[id] || [];
+      return analysisCardHTML(id, opt ? opt.label : `Analysis ${id}`, samples);
+    }).join('');
+    setTimeout(() => {
+
+    wrap.scrollIntoView({
+
+        behavior: "smooth",
+
+        block: "start"
+
+    });
+
+},150);
+  }
+
+  function toggleDropdown() {
+    const trigger = document.getElementById('analysisTrigger');
+    const dropdown = document.getElementById('analysisDropdown');
+    trigger.classList.toggle('open');
+    dropdown.classList.toggle('open');
+    if (dropdown.classList.contains('open')) {
+      document.getElementById('dropdownSearch').focus();
+    }
+  }
+
+  function handleLogout(event) {
+    event.preventDefault();
+    // Clear auth/session data and redirect to login.
+    clearAuthSession();
+    window.location.replace('index.html');
+  }
+
+  function filterDropdown(val) {
+    buildList(val);
+  }
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    const wrap = document.querySelector('.analysis-wrap');
+    if (!wrap.contains(e.target)) {
+      document.getElementById('analysisTrigger').classList.remove('open');
+      document.getElementById('analysisDropdown').classList.remove('open');
+    }
+  });
+
+  // ── FORM SUBMIT
+  function submitForm() {
+    const required = [
+      { id: 'fullName', label: 'Full Name' },
+      { id: 'email', label: 'Email' },
+      { id: 'phone', label: 'Phone' },
+      { id: 'institution', label: 'Institution' },
+      { id: 'designation', label: 'Designation' },
+      { id: 'city', label: 'City / State' },
+    ];
+
+    for (const f of required) {
+      const el = document.getElementById(f.id);
+      if (!el.value.trim()) {
+        el.focus();
+        el.style.borderColor = 'var(--error)';
+        el.style.boxShadow = '0 0 0 3px rgba(220,38,38,0.1)';
+        setTimeout(() => { el.style.borderColor = ''; el.style.boxShadow = ''; }, 2500);
+        alert(`Please fill in: ${f.label}`);
+        return;
+      }
+    }
+
+    if (selected.size === 0) {
+      document.getElementById('analysisTrigger').style.borderColor = 'var(--error)';
+      document.getElementById('analysisTrigger').style.boxShadow = '0 0 0 3px rgba(220,38,38,0.1)';
+      setTimeout(() => {
+        document.getElementById('analysisTrigger').style.borderColor = '';
+        document.getElementById('analysisTrigger').style.boxShadow = '';
+      }, 2500);
+      alert('Please select at least one analysis type.');
+      return;
+    }
+
+    const clientType = document.querySelector('input[name="clientType"]:checked');
+    if (!clientType) { alert('Please select client type (Academic / Industry).'); return; }
+
+    for (const id of selected) {
+      const opt = ANALYSIS_OPTIONS.find(o => o.id === id);
+      const label = opt ? opt.label : 'Analysis';
+      const samples = sampleDetailsData[id] || [];
+      for (let i = 0; i < samples.length; i++) {
+        const s = samples[i];
+        if (!s.sampleCode || !s.sampleCode.trim()) {
+          alert(`Please enter the Sample Code for "${label}" – Sample ${i + 1}.`);
+          return;
+        }
+        if (!s.toxicity) {
+          alert(`Please select Toxicity (Yes/No) for "${label}" – Sample ${i + 1}.`);
+          return;
+        }
+        if (isFESEMANalysis(id)) {
+          if (!s.magnification || !s.magnification.trim()) {
+            alert(`Please enter Magnification for "${label}" – Sample ${i + 1}.`);
+            return;
+          }
+          if (!s.elementsEDS || !s.elementsEDS.trim()) {
+            alert(`Please enter Elements for EDS for "${label}" – Sample ${i + 1}.`);
+            return;
+          }
+          if (!s.expectedMorphology) {
+            alert(`Please select Expected Morphology for "${label}" – Sample ${i + 1}.`);
+            return;
+          }
+          if (s.expectedMorphology === 'Structure (if any)' && (!s.structureDetails || !s.structureDetails.trim())) {
+            alert(`Please specify the structure for "${label}" – Sample ${i + 1}.`);
+            return;
+          }
+        }
+        if (isHRTEMAnalysis(id)) {
+          if (!s.elementsEDS || !s.elementsEDS.trim()) {
+            alert(`Please enter Elements for EDS for "${label}" – Sample ${i + 1}.`);
+            return;
+          }
+          if (!s.expectedMorphology || !s.expectedMorphology.trim()) {
+            alert(`Please enter Expected Morphology for "${label}" – Sample ${i + 1}.`);
+            return;
+          }
+        }
+        if (isBETAnalysis(id)) {
+          if (!s.techniqueRequested) {
+            alert(`Please select Technique Requested for "${label}" – Sample ${i + 1}.`);
+            return;
+          }
+          if (!s.composition || !s.composition.trim()) {
+            alert(`Please enter Composition for "${label}" – Sample ${i + 1}.`);
+            return;
+          }
+          if (!s.analysisCondition) {
+            alert(`Please select Analysis Conditions Required for "${label}" – Sample ${i + 1}.`);
+            return;
+          }
+        }
+        if (isHPLCAnalysis(id)) {
+          if (!s.compoundToBeAnalyzed || !s.compoundToBeAnalyzed.trim()) {
+            alert(`Please enter Compound to be Analyzed for "${label}" – Sample ${i + 1}.`);
+            return;
+          }
+          if (!s.solventName || !s.solventName.trim()) {
+            alert(`Please enter Solvent Name for "${label}" – Sample ${i + 1}.`);
+            return;
+          }
+        }
+        if (isNMRAnalysis(id)) {
+          if (!s.solvent) {
+            alert(`Please select Solvent for "${label}" – Sample ${i + 1}.`);
+            return;
+          }
+          if (s.solvent === 'Others' && (!s.otherSolvent || !s.otherSolvent.trim())) {
+            alert(`Please specify the solvent for "${label}" – Sample ${i + 1}.`);
+            return;
+          }
+          if (!s.nuclei || !s.nuclei.length) {
+            alert(`Please select at least one Nucleus for "${label}" – Sample ${i + 1}.`);
+            return;
+          }
+        }
+        if (isXPSAnalysis(id)) {
+          if (!s.chemicalComposition || !s.chemicalComposition.trim()) {
+            alert(`Please enter Chemical Composition for "${label}" – Sample ${i + 1}.`);
+            return;
+          }
+          if (!s.elementsToBeIdentified || !s.elementsToBeIdentified.trim()) {
+            alert(`Please enter Elements to be Identified for "${label}" – Sample ${i + 1}.`);
+            return;
+          }
+          if (!s.scanType) {
+            alert(`Please select Type of Scan for "${label}" – Sample ${i + 1}.`);
+            return;
+          }
+        }
+      }
+    }
+
+    const formData = {
+    fullName: document.getElementById('fullName').value,
+    email: document.getElementById('email').value,
+    phone: document.getElementById('phone').value,
+    institution: document.getElementById('institution').value,
+    designation: document.getElementById('designation').value,
+    city: document.getElementById('city').value,
+    analysis: [...selected],
+    sampleDetails: [...selected].map(id => ({
+      analysisId: id,
+      analysis: (ANALYSIS_OPTIONS.find(o => o.id === id) || {}).label || '',
+      samples: sampleDetailsData[id] || []
+    }))
+};
+
+fetch("http://127.0.0.1:8000/register", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify(formData)
+})
+.then(response => response.json())
+.then(data => {
+    const ref = 'SVY-' + Date.now().toString().slice(-6);
+
+    document.getElementById('refId').textContent = ref;
+    document.getElementById('successModal').classList.add('show');
+
+    console.log("Saved to MongoDB:", data);
+})
+.catch(error => {
+    console.error(error);
+    alert("Failed to submit registration.");
+});
+  }
+
+  function closeModal() {
+    document.getElementById('successModal').classList.remove('show');
+  }
+
+  // Init
+  if (requireAuthentication()) {
+    buildList();
+    renderPerAnalysisForms();
+  }
+
+  // Ensure browser navigation/back-forward cache doesn't allow access after logout.
+  window.addEventListener('pageshow', function(event) {
+    if (event.persisted || window.performance && window.performance.getEntriesByType('navigation').some(n => n.type === 'back_forward')) {
+      requireAuthentication();
+    }
+  });
+</script>
+
+<script src="assets/chem-fx.js"></script>
+<script>
+  chemInjectFx('.site-header .chem-fx-layer', { molecules: 3, bubbles: 6 });
+</script>
+</body>
+</html>

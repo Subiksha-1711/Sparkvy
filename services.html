@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SparkVy – Services</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="assets/chem-fx.css" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1a3a6b; --deep: #142e54; --blue: #1a3a6b;
+    --accent: #e8560a; --accent2: #f5a623; --light: #eef3fb;
+    --white: #ffffff; --text: #1e2a3a; --muted: #6b7f99;
+    --border: #dde4ef; --row-even: #f5f7fa;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { font-family:'DM Sans',sans-serif; background:#f4f7fc; color:var(--text); }
+
+  /* NAV */
+  nav {
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    background:white; display:flex; align-items:center; justify-content:space-between;
+    padding:0 5%; height:68px;
+    border-bottom:1px solid rgba(240,127,30,0.2);
+    box-shadow:0 2px 12px rgba(0,0,0,0.06);
+  }
+  .nav-links { display:flex; gap:28px; align-items:center; }
+  .nav-links a { color:var(--muted); text-decoration:none; font-size:0.86rem; font-weight:500; letter-spacing:0.05em; text-transform:uppercase; transition:color 0.3s; }
+  .nav-links a:hover { color:var(--accent); }
+  .nav-btn { background:var(--accent); color:#ffffff!important; padding:9px 20px; border-radius:4px; font-weight:700!important; }
+  .nav-logo { display:flex; align-items:center; gap:12px; text-decoration:none; }
+  .nav-logo img { height:48px; object-fit:contain; }
+  .nav-brand { font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:700; color:var(--navy); }
+  .nav-brand span { color:var(--accent); }
+
+  /* PAGE HEADER */
+  .page-header {
+    background:linear-gradient(135deg,var(--navy) 0%,var(--deep) 60%,#0f2d5e 100%);
+    text-align:center;
+    padding:100px 5% 48px; position:relative; overflow:hidden;
+  }
+  .page-header::before {
+    content:''; position:absolute; inset:0;
+    background:radial-gradient(ellipse 60% 80% at 80% 50%,rgba(240,127,30,0.15) 0%,transparent 70%);
+  }
+  .page-header-inner { max-width:1300px; margin:0 auto; position:relative; z-index:1; }
+  .page-header h1 { font-family:'Playfair Display',serif; font-size:clamp(1.9rem,4vw,2.8rem); color:white; font-weight:900; margin-bottom:10px; }
+  .page-header h1 em { color:var(--accent); font-style:normal; }
+  .page-header p { color:rgba(255,255,255,0.65); font-size:0.95rem; max-width:540px; line-height:1.7; text-align:center; margin:0 auto; }
+
+  /* LAYOUT */
+  .services-layout {
+    max-width:1300px; margin:0 auto;
+    display:grid; grid-template-columns:270px 1fr;
+    gap:36px; padding:44px 5% 60px;
+  }
+
+  /* SIDEBAR */
+  .sidebar { position:sticky; top:82px; align-self:start; }
+  .sidebar-inner { background:white; border-radius:16px; border:1px solid var(--border); overflow:hidden; box-shadow:0 4px 20px rgba(1, 42, 103, 0.07); }
+  .sidebar-title {
+    background:#002b6b; color:white; padding:16px 20px;
+    font-weight:700; font-size:0.82rem; text-transform:uppercase; letter-spacing:0.1em;
+    display:flex; align-items:center; gap:10px;
+  }
+  .sidebar-nav { list-style:none; }
+  .sidebar-nav li a {
+    display:flex; align-items:center; gap:12px;
+    padding:12px 18px; font-size:0.86rem; color:var(--text);
+    text-decoration:none; transition:all 0.2s;
+    border-bottom:1px solid rgba(0,0,0,0.04);
+  }
+  .sidebar-nav li a:hover,
+  .sidebar-nav li a.active {
+    background:var(--light); color:var(--accent); font-weight:600;
+    border-left:3px solid var(--accent);
+  }
+  .sidebar-nav li a .icon { font-size:1rem; width:20px; text-align:center; color:var(--accent); }
+
+  /* CONTENT */
+  .content-area { min-height:600px; }
+  .service-section { display:none; }
+  .service-section.active { display:block; animation:fadeIn 0.3s ease; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+  /* SERVICE BLOCK */
+  .service-block { margin-bottom:36px; }
+  .service-block-header {
+    display:flex; align-items:center; gap:14px;
+    background:#002b6b; color:white;
+    padding:16px 22px; border-radius:14px 14px 0 0;
+  }
+  .service-block-header .hicon { font-size:1.4rem; }
+  .service-block-header h2 { font-family:'Playfair Display',serif; font-size:1.15rem; font-weight:700; }
+  .service-block-header .intro { color:rgba(255,255,255,0.62); font-size:0.81rem; margin-top:3px; }
+
+  /* TABLE WRAP */
+  .table-wrap { background:white; border-radius:0 0 14px 14px; border:1px solid var(--border); border-top:none; overflow:hidden; box-shadow:0 4px 18px rgba(10,22,40,0.06); }
+
+  table { width:100%; border-collapse:collapse; }
+  thead tr { background:var(--deep); }
+  thead th { color:rgba(255,255,255,0.85); font-size:0.74rem; text-transform:uppercase; letter-spacing:0.07em; padding:11px 16px; text-align:left; font-weight:600; }
+  tbody tr:nth-child(even) { background:var(--row-even); }
+  tbody tr:hover { background:#dde8fa; }
+  tbody td { padding:10px 16px; font-size:0.875rem; color:var(--text); border-bottom:1px solid rgba(0,0,0,0.04); vertical-align:top; }
+  tbody tr:last-child td { border-bottom:none; }
+
+  .icon-cell { text-align:center; font-size:1.1rem; width:46px; }
+  .tech-name { font-weight:600; color:var(--navy); }
+  .tech-sub { font-size:0.78rem; color:var(--muted); margin-top:2px; }
+  .code-cell { font-family:monospace; font-size:0.8rem; color:var(--blue); font-weight:700; white-space:nowrap; }
+  .price { font-weight:600; color:var(--navy); }
+  .contact-price { color:var(--muted); font-style:italic; font-size:0.82rem; }
+
+  /* INFO TABLE (cards as rows) */
+  .info-table td:first-child { font-weight:700; color:var(--navy); font-size:0.85rem; width:190px; white-space:nowrap; }
+  .info-table td:last-child { color:var(--muted); font-size:0.84rem; line-height:1.65; }
+
+  /* CHARGES SUB-HEADING */
+  .charges-sub { background:var(--deep); color:rgba(255,255,255,0.88); padding:10px 18px; font-weight:700; font-size:0.88rem; }
+
+  /* TAGS */
+  .tag-list { display:flex; flex-wrap:wrap; gap:6px; margin-top:5px; }
+  .tag { background:rgba(26,74,138,0.08); border:1px solid rgba(26,74,138,0.18); color:var(--blue); padding:3px 11px; border-radius:100px; font-size:0.74rem; font-weight:500; }
+
+  /* NOTE BAR */
+  .note-bar {
+    background:linear-gradient(135deg,#fff7ed,#fef3c7);
+    border-left:4px solid var(--accent);
+    padding:14px 20px; font-size:0.85rem; color:#92400e; line-height:1.6;
+  }
+  .note-bar:last-child { border-radius:0 0 14px 14px; }
+
+  /* FOOTER */
+  footer {
+    background:var(--blue); padding:40px 60px 24px;
+    display:grid; grid-template-columns:2fr 1fr 1fr; gap:40px;
+  }
+  .footer-brand { font-family:'Playfair Display',serif; font-size:1.3rem; font-weight:900; color:#fff; margin-bottom:10px; }
+  .footer-brand span { color:var(--accent); }
+  footer p, footer a { font-size:0.83rem; color:rgba(255,255,255,0.65); text-decoration:none; display:block; margin-bottom:8px; }
+  footer h4 { font-size:0.73rem; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.5); margin-bottom:12px; font-weight:700; }
+  .footer-bottom { padding:16px 60px; text-align:center; border-top:1px solid rgba(255,255,255,0.1); font-size:0.75rem; color:rgba(255,255,255,0.35); background:rgba(255,255,255,0.03); }
+  .footer-bottom span { color:var(--accent); }
+
+  @media(max-width:768px){
+    .services-layout{ grid-template-columns:1fr; }
+    .sidebar{ position:static; }
+    nav .nav-brand{ font-size:1.2rem; }
+    nav { padding: 10px 4%; }
+    .nav-logo img { height: 38px; }
+    .nav-btn { padding: 7px 14px; font-size: 0.74rem; }
+    footer { grid-template-columns:1fr; gap:24px; padding:32px 20px 20px; }
+    .footer-bottom { padding:14px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">
+    <img src="images/logo.jpeg" loading="lazy">
+    <div class="nav-brand">Spark<span>Vy</span></div>
+  </a>
+  <div class="nav-links">
+    <a href="index.html" class="nav-btn">Back To Home </a>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="chem-fx-layer"></div>
+  <div class="page-header-inner reveal">
+    <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.14em;color:var(--accent);margin-bottom:8px;">SparkVy Advanced Research</div>
+    <h1>Our <em>Services</em></h1>
+    <p>World-class research facilities and expert-led analytical services. Choose a service from the menu to explore detailed offerings and capabilities.</p>
+  </div>
+</div>
+
+<div class="services-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+      <div class="sidebar-title"><i class="fas fa-flask"></i> Select a Service</div>
+      <ul class="sidebar-nav">
+        <li><a href="#" data-section="electrochemical" class="nav-item active"><span class="icon">⚡</span>Electrochemical Studies</a></li>
+        <li><a href="#" data-section="nanomaterial" class="nav-item"><span class="icon">🔬</span>Nanomaterial Synthesis</a></li>
+        <li><a href="#" data-section="energy" class="nav-item"><span class="icon">☀️</span>Energy Conversion</a></li>
+        <li><a href="#" data-section="optical" class="nav-item"><span class="icon">🔭</span>Optical Studies</a></li>
+        <li><a href="#" data-section="morphological" class="nav-item"><span class="icon">🧫</span>Morphological Studies</a></li>
+        <li><a href="#" data-section="structural" class="nav-item"><span class="icon">🏗️</span>Structural Studies</a></li>
+        <li><a href="#" data-section="photocatalytic" class="nav-item"><span class="icon">💡</span>Photocatalytic Studies</a></li>
+        <li><a href="#" data-section="biological" class="nav-item"><span class="icon">🧬</span>Biological Studies</a></li>
+        <li><a href="#" data-section="simulation" class="nav-item"><span class="icon">💻</span>Simulation Studies</a></li>
+        <li><a href="#" data-section="internship" class="nav-item"><span class="icon">🎓</span>Internship Opportunities</a></li>
+        <li><a href="#" data-section="training" class="nav-item"><span class="icon">🛠️</span>Hands-on Training</a></li>
+        <li><a href="#" data-section="charges" class="nav-item"><span class="icon">📋</span>Charges</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content-area">
+
+    <!-- ══ 1. ELECTROCHEMICAL ══ -->
+    <section id="electrochemical" class="service-section active">
+      <div class="service-block">
+        <div class="service-block-header">
+          <span class="hicon">⚡</span>
+          <div><h2>Electrochemical Analysis Services</h2>
+          <div class="intro">Comprehensive electrochemical characterization for energy storage, corrosion, sensors, and catalysis research.</div></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th style="width:46px;"></th><th>Technique</th><th>Abbreviation</th></tr></thead>
+            <tbody>
+              <tr><td class="icon-cell">📈</td><td><div class="tech-name">Cyclic Voltammetry</div></td><td class="tech-sub">CV</td></tr>
+              <tr><td class="icon-cell">📉</td><td><div class="tech-name">Linear Sweep Voltammetry</div></td><td class="tech-sub">LSV</td></tr>
+              <tr><td class="icon-cell">⚖️</td><td><div class="tech-name">Open Circuit Potential</div></td><td class="tech-sub">OCP</td></tr>
+              <tr><td class="icon-cell">📊</td><td><div class="tech-name">Differential Pulse Voltammetry</div></td><td class="tech-sub">DPV</td></tr>
+              <tr><td class="icon-cell">⏱️</td><td><div class="tech-name">Chronoamperometry</div></td><td class="tech-sub">CA</td></tr>
+              <tr><td class="icon-cell">📐</td><td><div class="tech-name">Tafel Slope</div></td><td class="tech-sub">Corrosion Rate</td></tr>
+              <tr><td class="icon-cell">🌐</td><td><div class="tech-name">Electrochemical Impedance Spectroscopy</div></td><td class="tech-sub">EIS</td></tr>
+              <tr><td class="icon-cell">🔋</td><td><div class="tech-name">Galvanostatic Charge-Discharge</div></td><td class="tech-sub">GCD</td></tr>
+              <tr><td class="icon-cell">🪙</td><td><div class="tech-name">Coin Cell Fabrication</div></td><td class="tech-sub">Battery Cells</td></tr>
+            </tbody>
+          </table>
+          <table class="info-table">
+            <tbody>
+              <tr><td>🔬 Expert Operation</td><td>Each analysis is conducted by experienced researchers ensuring optimal results and accurate interpretation of complex electrochemical data.</td></tr>
+              <tr><td>📄 AMC-Backed Instruments</td><td>All electrochemical workstations are maintained under Annual Maintenance Contracts ensuring consistent, reliable performance.</td></tr>
+            </tbody>
+          </table>
+          <div class="note-bar"><strong>Note:</strong> Custom protocols available. Kindly contact us for multi-technique packages or long-run stability studies.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ 2. NANOMATERIAL ══ -->
+    <section id="nanomaterial" class="service-section">
+      <div class="service-block">
+        <div class="service-block-header">
+          <span class="hicon">🔬</span>
+          <div><h2>Nanomaterial Synthesis Techniques</h2>
+          <div class="intro">State-of-the-art synthesis capabilities for energy, biomedical, and environmental applications.</div></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th style="width:46px;"></th><th>Synthesis Method</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="icon-cell">💧</td><td><div class="tech-name">Hydrothermal Synthesis</div></td><td class="tech-sub">Aqueous, high pressure</td></tr>
+              <tr><td class="icon-cell">🧪</td><td><div class="tech-name">Solvothermal Synthesis</div></td><td class="tech-sub">Non-aqueous solvent</td></tr>
+              <tr><td class="icon-cell">🧫</td><td><div class="tech-name">Sol-Gel Synthesis</div></td><td class="tech-sub">Wet chemistry route</td></tr>
+              <tr><td class="icon-cell">🌿</td><td><div class="tech-name">Green Synthesis</div></td><td class="tech-sub">Eco-friendly route</td></tr>
+              <tr><td class="icon-cell">⚗️</td><td><div class="tech-name">Co-Precipitation</div></td><td class="tech-sub">Chemical precipitation</td></tr>
+              <tr><td class="icon-cell">☀️</td><td><div class="tech-name">DSSC / Perovskite Solar Cell Fabrication</div></td><td class="tech-sub">Solar devices</td></tr>
+            </tbody>
+          </table>
+          <table class="info-table">
+            <tbody>
+              <tr><td>🎯 Applications</td><td>Synthesized materials serve energy storage, solar cells, photocatalysis, water treatment, biomedical, and sensor applications.</td></tr>
+              <tr><td>📦 Output</td><td>Well-characterized nanomaterials with confirmed phase purity, morphology, and functional properties ready for downstream characterization.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ 3. ENERGY ══ -->
+    <section id="energy" class="service-section">
+      <div class="service-block">
+        <div class="service-block-header">
+          <span class="hicon">☀️</span>
+          <div><h2>Energy Conversion Application</h2>
+          <div class="intro">Specialized testing and characterization for solar cells, photovoltaic devices, and light-harvesting materials.</div></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th style="width:46px;"></th><th>Technique</th><th>Abbreviation</th></tr></thead>
+            <tbody>
+              <tr><td class="icon-cell">📈</td><td><div class="tech-name">Current–Voltage Characteristics</div></td><td class="tech-sub">I-V Curves (Solar Cells)</td></tr>
+              <tr><td class="icon-cell">🌈</td><td><div class="tech-name">Incident Photon-Current Efficiency</div></td><td class="tech-sub">IPCE / EQE</td></tr>
+            </tbody>
+          </table>
+          <table class="info-table">
+            <tbody>
+              <tr><td>🔆 Applications</td><td>Ideal for DSSC, perovskite solar cells, OPV, and other next-generation photovoltaic device characterization. Provides power conversion efficiency, fill factor, Voc, and Jsc parameters.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ 4. OPTICAL ══ -->
+    <section id="optical" class="service-section">
+      <div class="service-block">
+        <div class="service-block-header">
+          <span class="hicon">🔭</span>
+          <div><h2>Optical Characterization</h2>
+          <div class="intro">Advanced optical spectroscopy to determine bandgap, optical transitions, luminescence properties, and electronic structure.</div></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th style="width:46px;"></th><th>Technique</th><th>Abbreviation</th></tr></thead>
+            <tbody>
+              <tr><td class="icon-cell">🌊</td><td><div class="tech-name">UV-Visible Spectrophotoscopy</div></td><td class="tech-sub">UV-Vis (Liquid &amp; Film)</td></tr>
+              <tr><td class="icon-cell">✨</td><td><div class="tech-name">Photoluminescence Spectrophotoscopy</div></td><td class="tech-sub">PL Spectroscopy</td></tr>
+            </tbody>
+          </table>
+          <table class="info-table">
+            <tbody>
+              <tr><td>📊 UV-Vis Analysis</td><td>Absorption spectra for bandgap determination (Tauc plot), optical transmittance, and surface plasmon resonance studies in both liquid samples and thin films.</td></tr>
+              <tr><td>💫 PL Analysis</td><td>Emission spectra for defect characterization, quantum yield estimation, carrier recombination dynamics, and fluorescence lifetime studies.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ 5. MORPHOLOGICAL ══ -->
+    <section id="morphological" class="service-section">
+      <div class="service-block">
+        <div class="service-block-header">
+          <span class="hicon">🧫</span>
+          <div><h2>Morphological Characterization</h2>
+          <div class="intro">High-resolution imaging to reveal surface morphology, particle size, nanostructure dimensions, and elemental composition.</div></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th style="width:46px;"></th><th>Technique</th><th>Abbreviation</th></tr></thead>
+            <tbody>
+              <tr><td class="icon-cell">🔍</td><td><div class="tech-name">Field Emission Scanning Electron Microscopy</div></td><td class="tech-sub">FE-SEM + EDX</td></tr>
+              <tr><td class="icon-cell">🔬</td><td><div class="tech-name">High-Resolution Transmission Electron Microscopy</div></td><td class="tech-sub">HR-TEM + SAED</td></tr>
+              <tr><td class="icon-cell">📐</td><td><div class="tech-name">Atomic Force Microscopy</div></td><td class="tech-sub">AFM (topography &amp; roughness)</td></tr>
+            </tbody>
+          </table>
+          <table class="info-table">
+            <tbody>
+              <tr><td>🔎 FE-SEM Capabilities</td><td>Sub-nanometer resolution imaging with EDX mapping for elemental analysis. Ideal for nanoparticle morphology, thin film cross-sections, and surface features.</td></tr>
+              <tr><td>⚛️ HR-TEM Capabilities</td><td>Atomic-resolution imaging for lattice fringe analysis, SAED for crystal structure, and nanostructure dimensional measurements at sub-angstrom scale.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ 6. STRUCTURAL ══ -->
+    <section id="structural" class="service-section">
+      <div class="service-block">
+        <div class="service-block-header">
+          <span class="hicon">🏗️</span>
+          <div><h2>Structural Characterization</h2>
+          <div class="intro">Crystal structure determination and molecular vibration analysis for phase identification, crystallinity, and bonding studies.</div></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th style="width:46px;"></th><th>Technique</th><th>Abbreviation</th></tr></thead>
+            <tbody>
+              <tr><td class="icon-cell">📡</td><td><div class="tech-name">X-Ray Diffractometer</div></td><td class="tech-sub">PXRD – Phase analysis</td></tr>
+              <tr><td class="icon-cell">🌀</td><td><div class="tech-name">Raman Spectrophotoscopy</div></td><td class="tech-sub">Raman – Molecular vibrations</td></tr>
+            </tbody>
+          </table>
+          <table class="info-table">
+            <tbody>
+              <tr><td>📊 XRD Analysis</td><td>Phase identification, crystallite size (Scherrer equation), lattice parameter calculation, strain analysis, and qualitative/quantitative phase analysis using JCPDS database.</td></tr>
+              <tr><td>🔬 Raman Analysis</td><td>Molecular fingerprinting, phonon modes, defect density analysis in carbon materials (D/G ratio), and stress characterization in semiconductors.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ 7. PHOTOCATALYTIC ══ -->
+    <section id="photocatalytic" class="service-section">
+      <div class="service-block">
+        <div class="service-block-header">
+          <span class="hicon">💡</span>
+          <div><h2>Photocatalytic Studies</h2>
+          <div class="intro">Comprehensive photocatalytic performance evaluation for environmental remediation and water purification applications.</div></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th style="width:46px;"></th><th>Study Type</th><th>Details</th></tr></thead>
+            <tbody>
+              <tr><td class="icon-cell">🎨</td><td><div class="tech-name">Dye Degradation Studies</div></td><td class="tech-sub">MB, MO, RhB &amp; more</td></tr>
+              <tr><td class="icon-cell">💧</td><td><div class="tech-name">Waste-Water Treatment / Purification</div></td><td class="tech-sub">Industrial effluents</td></tr>
+            </tbody>
+          </table>
+          <table class="info-table">
+            <tbody>
+              <tr><td>🌿 Environmental Impact</td><td>Evaluation of photocatalytic degradation efficiency under UV and visible light irradiation. Kinetic modelling (pseudo-first order), TOC measurements, and reusability studies included on request.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ 8. BIOLOGICAL ══ -->
+    <section id="biological" class="service-section">
+      <div class="service-block">
+        <div class="service-block-header">
+          <span class="hicon">🧬</span>
+          <div><h2>Biological Studies</h2>
+          <div class="intro">Cutting-edge in-vitro and in-vivo biological assays for nanomaterial biocompatibility, drug testing, and life sciences research.</div></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th style="width:46px;"></th><th>Study / Assay</th><th>Method / Notes</th></tr></thead>
+            <tbody>
+              <tr><td class="icon-cell">🧪</td><td><div class="tech-name">In-vitro Cyto-toxicity Studies</div></td><td class="tech-sub">MTT / Cell viability</td></tr>
+              <tr><td class="icon-cell">🩹</td><td><div class="tech-name">In-vitro Wound Scratch Study</div></td><td class="tech-sub">Cell migration assay</td></tr>
+              <tr><td class="icon-cell">🎗️</td><td><div class="tech-name">In-vitro Anti-cancer Studies</div></td><td class="tech-sub">IC50 determination</td></tr>
+              <tr><td class="icon-cell">🐟</td><td><div class="tech-name">Cancer Studies – Zebrafish Model</div></td><td class="tech-sub">In-vivo zebrafish</td></tr>
+              <tr><td class="icon-cell">💊</td><td><div class="tech-name">Drugs and Chemicals Testing</div></td><td class="tech-sub">Safety &amp; efficacy</td></tr>
+              <tr><td class="icon-cell">🫀</td><td><div class="tech-name">Tissue &amp; Organs</div></td><td class="tech-sub">Histopathology</td></tr>
+              <tr><td class="icon-cell">🧠</td><td><div class="tech-name">Nanomaterials in Metabolism, Brain Cells</div></td><td class="tech-sub">Neurological effects</td></tr>
+              <tr><td class="icon-cell">🌱</td><td><div class="tech-name">Biology in Growth and Development</div></td><td class="tech-sub">Growth studies</td></tr>
+              <tr><td class="icon-cell">🔴</td><td><div class="tech-name">Apoptosis Assay</div></td><td class="tech-sub">Staining Method</td></tr>
+              <tr><td class="icon-cell">🦠</td><td><div class="tech-name">Antimicrobial Activity</div></td><td class="tech-sub">MIC / Zone of inhibition</td></tr>
+              <tr><td class="icon-cell">🛡️</td><td><div class="tech-name">Antioxidant Activity</div></td><td class="tech-sub">DPPH / ABTS assay</td></tr>
+            </tbody>
+          </table>
+          <div class="note-bar"><strong>Ethics Note:</strong> All biological studies are conducted following standard ethical protocols. Zebrafish model studies comply with institutional animal ethics guidelines.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ 9. SIMULATION ══ -->
+    <section id="simulation" class="service-section">
+      <div class="service-block">
+        <div class="service-block-header">
+          <span class="hicon">💻</span>
+          <div><h2>Computational Simulation Studies</h2>
+          <div class="intro">Advanced computational modelling for molecular interactions, protein-ligand binding, and quantum mechanical simulations.</div></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th style="width:46px;"></th><th>Simulation Type</th><th>Tools / Platform</th></tr></thead>
+            <tbody>
+              <tr><td class="icon-cell">🔗</td><td><div class="tech-name">Molecular Docking Studies</div></td><td class="tech-sub">Protein-ligand docking</td></tr>
+              <tr><td class="icon-cell">🌊</td><td><div class="tech-name">Molecular Dynamics Simulation</div></td><td class="tech-sub">MD – GROMACS / AMBER</td></tr>
+              <tr><td class="icon-cell">⚛️</td><td><div class="tech-name">DFT Analysis for Small Molecules</div></td><td class="tech-sub">Gaussian Software</td></tr>
+              <tr><td class="icon-cell">🔄</td><td><div class="tech-name">QM/MM Analysis</div></td><td class="tech-sub">Quantum Mechanics / Molecular Mechanics</td></tr>
+              <tr><td class="icon-cell">📊</td><td><div class="tech-name">Binding Free Energy Analysis</div></td><td class="tech-sub">Protein-Ligand Complexes (MM-PBSA)</td></tr>
+            </tbody>
+          </table>
+          <table class="info-table">
+            <tbody>
+              <tr><td>🖥️ Software Platforms</td><td>Gaussian, AutoDock Vina, GROMACS, AMBER, VMD, Discovery Studio, and other industry-standard computational chemistry tools.</td></tr>
+              <tr><td>🎯 Applications</td><td>Drug discovery, enzyme mechanism elucidation, material property prediction, and nanotoxicology screening for pharmaceutical and biomedical research.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ 10. INTERNSHIP ══ -->
+    <section id="internship" class="service-section">
+      <div class="service-block">
+        <div class="service-block-header">
+          <span class="hicon">🎓</span>
+          <div><h2>Research Internship Programs</h2>
+          <div class="intro">Immersive research internship focused on nanomaterials and electrochemistry with Scopus publication outcome.</div></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Program</th><th>Focus Areas</th><th>Outcomes</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><div class="tech-name">6/3 Month Advanced Research Internship</div><div class="tech-sub">Hands-on with advanced lab instruments alongside experienced researchers</div></td>
+                <td><div class="tag-list"><span class="tag">🔬 Nanomaterials</span><span class="tag">⚡ Electrochemistry</span></div></td>
+                <td><div class="tag-list"><span class="tag">📄 Scopus Publication</span><span class="tag">🏆 Certificate</span></div></td>
+              </tr>
+            </tbody>
+          </table>
+          <table class="info-table">
+            <tbody>
+              <tr><td>📋 Outcome</td><td>Participants receive an official certificate of completion and co-authorship in a Scopus-indexed research publication — a powerful addition to any academic or professional profile.</td></tr>
+              <tr><td>🎓 Eligibility</td><td>Open to UG/PG Graduates or final year students from Science and Engineering disciplines. No prior advanced research experience required.</td></tr>
+            </tbody>
+          </table>
+          <table>
+            <thead><tr><th colspan="2">Why Choose SparkVy for Internships?</th></tr></thead>
+            <tbody>
+              <tr><td class="icon-cell">🔬</td><td><strong>Real-time Lab Exposure</strong> — Hands-on access to advanced instruments including FE-SEM, HR-TEM, XRD, electrochemical workstations, and more.</td></tr>
+              <tr><td class="icon-cell">👩‍🔬</td><td><strong>Industry-Recognized Mentors</strong> — Learn directly from experienced scientists and researchers with strong publication and industry credentials.</td></tr>
+              <tr><td class="icon-cell">⚗️</td><td><strong>Hands-on Synthesis &amp; Testing</strong> — Participate in full research cycles: synthesis, characterization, analysis, and manuscript preparation.</td></tr>
+              <tr><td class="icon-cell">📚</td><td><strong>Ideal for Final Year Students</strong> — Perfect for Final Year Project (FYP), Postgraduate dissertations, and PhD aspirants building a research foundation.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ 11. TRAINING ══ -->
+    <section id="training" class="service-section">
+      <div class="service-block">
+        <div class="service-block-header">
+          <span class="hicon">🛠️</span>
+          <div><h2>Short-Term Skill Accelerator Workshops</h2>
+          <div class="intro">Structured short-term workshops to build practical research skills for students and early-career researchers.</div></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th style="width:46px;"></th><th>Workshop Module</th><th>Category</th></tr></thead>
+            <tbody>
+              <tr><td class="icon-cell">⚖️</td><td><div class="tech-name">Research Ethics &amp; Lab Safety Procedures</div></td><td class="tech-sub">Foundation Module</td></tr>
+              <tr><td class="icon-cell">📖</td><td><div class="tech-name">Literature Survey &amp; Review Article Writing</div></td><td class="tech-sub">Academic Writing</td></tr>
+              <tr><td class="icon-cell">⚡</td><td><div class="tech-name">Electrochemical Analysis</div></td><td class="tech-sub">Practical Workshop</td></tr>
+              <tr><td class="icon-cell">📊</td><td><div class="tech-name">Interpretation of XRD, UV, PL, FESEM, HRTEM, XPS and BET</div></td><td class="tech-sub">Data Analysis Skills</td></tr>
+              <tr><td class="icon-cell">🧪</td><td><div class="tech-name">Nanomaterial Synthesis Techniques</div></td><td class="tech-sub">Practical Synthesis</td></tr>
+            </tbody>
+          </table>
+          <table class="info-table">
+            <tbody>
+              <tr><td>🎯 Who Should Attend</td><td>UG/PG students, research scholars, and faculty members looking to upskill in materials characterization, electrochemistry, and scientific writing.</td></tr>
+              <tr><td>📜 Certificate</td><td>Participants receive a certificate of completion for each workshop module attended, strengthening their academic and professional profiles.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ 12. CHARGES ══ -->
+    <section id="charges" class="service-section">
+      <div class="service-block">
+        <div class="service-block-header">
+          <span class="hicon">📋</span>
+          <div><h2>Service Charges</h2>
+          <div class="intro">Transparent pricing for all analytical services. Academic and industrial rates available.</div></div>
+        </div>
+        <div class="table-wrap">
+
+          <div class="charges-sub">⚡ Supercapacitor Applications</div>
+          <table>
+            <thead><tr><th>A. Code</th><th>Analysis</th><th>Academic (INR)</th><th>Industry (INR)</th></tr></thead>
+            <tbody>
+              <tr><td class="code-cell">SAN01</td><td>Cyclic Voltammetry (10 Scan Rates)</td><td class="price">₹500</td><td class="price">₹1,000</td></tr>
+              <tr><td class="code-cell">SAN02</td><td>Linear Sweep Voltammetry (LSV)</td><td class="price">₹200</td><td class="price">₹400</td></tr>
+              <tr><td class="code-cell">SAN03</td><td>Galvanostatic Charge-Discharge (6 Current Density)</td><td class="price">₹500</td><td class="price">₹1,000</td></tr>
+              <tr><td class="code-cell">SAN04</td><td>Chronoamperometry</td><td class="price">₹600/hour</td><td class="price">₹400</td></tr>
+              <tr><td class="code-cell">SAN05</td><td>Electrochemical Impedance Spectroscopy (EIS)</td><td class="price">₹300</td><td class="price">₹600</td></tr>
+              <tr><td class="code-cell">SAN06</td><td>Tafel Slope</td><td class="price">₹300</td><td class="price">₹600</td></tr>
+              <tr><td class="code-cell">SAN07</td><td>Differential Pulse Voltammetry (DPV)</td><td class="price">₹300</td><td class="price">₹600</td></tr>
+              <tr><td class="code-cell">SAN08</td><td>Electrode Preparation</td><td class="price">₹100</td><td class="price">₹200</td></tr>
+              <tr><td class="code-cell">SAN09</td><td>Charge-Discharge Cycles (5000 Cycles)</td><td class="price">₹2,000</td><td class="price">₹4,000</td></tr>
+              <tr><td class="code-cell">SAN10</td><td>Open Circuit Potential</td><td class="price">₹50</td><td class="price">₹100</td></tr>
+              <tr><td class="code-cell">SAN11</td><td>Coin Cell Fabrication</td><td class="price">₹100</td><td class="price">₹200</td></tr>
+              <tr><td class="code-cell">SAN12</td><td>UV-Visible Spectrophotometer (Liquid, Film)</td><td class="price">₹200</td><td class="price">₹500</td></tr>
+            </tbody>
+          </table>
+
+          <div class="charges-sub">🧪 Materials Synthesis</div>
+          <table>
+            <thead><tr><th>S. Code</th><th>Synthesis Method</th><th>Academic (INR)</th><th>Industry (INR)</th></tr></thead>
+            <tbody>
+              <tr><td class="code-cell">SN01</td><td>Sol-Gel</td><td class="price">₹500</td><td class="price">₹1,000</td></tr>
+              <tr><td class="code-cell">SN02</td><td>Hydrothermal</td><td class="price">₹300/hour</td><td class="price">₹400</td></tr>
+              <tr><td class="code-cell">SN03</td><td>Solvothermal</td><td class="price">₹500</td><td class="price">₹1,000</td></tr>
+              <tr><td class="code-cell">SN04</td><td>Co-Precipitation</td><td class="price">₹200</td><td class="price">₹400</td></tr>
+              <tr><td class="code-cell">SN05</td><td>Green Synthesis</td><td class="price">₹300</td><td class="price">₹600</td></tr>
+              <tr><td class="code-cell">SN06</td><td>DSSC / Perovskite Solar Cell Fabrication</td><td class="price">₹500</td><td class="price">₹400</td></tr>
+            </tbody>
+          </table>
+
+          <div class="charges-sub">🔬 Other Characterization Facilities</div>
+          <table>
+            <thead><tr><th>C-Code</th><th>Characterization Technique</th><th colspan="2" style="text-align:center;">Pricing</th></tr></thead>
+            <tbody>
+              <tr><td class="code-cell">CR01</td><td>Powder X-Ray Diffractometer (PXRD)</td><td colspan="2" class="contact-price">Contact for rates</td></tr>
+              <tr><td class="code-cell">CR02</td><td>FTIR</td><td colspan="2" class="contact-price">Contact for rates</td></tr>
+              <tr><td class="code-cell">CR03</td><td>Field Emission Scanning Electron Microscope (FESEM)</td><td colspan="2" class="contact-price">Contact for rates</td></tr>
+              <tr><td class="code-cell">CR04</td><td>TGA-DSC</td><td colspan="2" class="contact-price">Contact for rates</td></tr>
+              <tr><td class="code-cell">CR05</td><td>UV-DRS</td><td colspan="2" class="contact-price">Contact for rates</td></tr>
+              <tr><td class="code-cell">CR06</td><td>HR-TEM</td><td colspan="2" class="contact-price">Contact for rates</td></tr>
+              <tr><td class="code-cell">CR07</td><td>BET</td><td colspan="2" class="contact-price">Contact for rates</td></tr>
+              <tr><td class="code-cell">CR08</td><td>XPS</td><td colspan="2" class="contact-price">Contact for rates</td></tr>
+            </tbody>
+          </table>
+
+          <div class="note-bar">
+            <strong>Note:</strong> All prices are in Indian Rupees (INR). GST applicable as per government regulations. GSTIN: 33FJPUK5952M1ZO. Contact us at <strong>Info@sparkvyresearchhub.com</strong> or <strong>+91 7708214927</strong> for customized package rates and bulk discounts.
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer class="reveal">
+  <div>
+    <div class="footer-brand">Spark<span>Vy</span> Advanced Research</div>
+    <p>A Hub of Interdisciplinary Science. Coimbatore, Tamil Nadu, India.</p>
+    <p style="margin-top:10px;">GSTIN: 33FJPUK5952M1ZO</p>
+  </div>
+  <div>
+    <h4>Contact</h4>
+    <a href="mailto:Info@sparkvyresearchhub.com">Info@sparkvyresearchhub.com</a>
+    <a href="tel:04226794192">0422-6794192</a>
+    <a>+91 7708214927 (WhatsApp)</a>
+  </div>
+  <div>
+    <h4>Quick Links</h4>
+    <a href="index.html">Home</a>
+    <a href="products.html">Products</a>
+    <a href="services.html">Services</a>
+    <a href="index.html#about">About Us</a>
+  </div>
+</footer>
+<div class="footer-bottom">© 2025 <span>SparkVy</span> Advanced Research &amp; Innovations. All rights reserved. | Coimbatore, Tamil Nadu, India.</div>
+
+<script>
+  function activateSection(id) {
+    document.querySelectorAll('.service-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(a => a.classList.remove('active'));
+    const section = document.getElementById(id);
+    const navItem = document.querySelector(`[data-section="${id}"]`);
+    if (section) section.classList.add('active');
+    if (navItem) navItem.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  document.querySelectorAll('.nav-item').forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      activateSection(this.getAttribute('data-section'));
+    });
+  });
+</script>
+
+<script src="assets/chem-fx.js"></script>
+<script>
+  chemInjectFx('.page-header .chem-fx-layer', { molecules: 3, bubbles: 6 });
+</script>
+</body>
+</html>

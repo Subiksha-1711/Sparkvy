@@ -1,0 +1,114 @@
+/* ════════════════════════════════════════════════════════════
+   SparkVy — Shared Chemistry Motion & Scroll-Reveal System
+   Drop-in ambient animations for hero/section backgrounds.
+   Colors are read from each page's own CSS variables where
+   possible (--accent, --blue), with safe fallbacks.
+════════════════════════════════════════════════════════════ */
+
+:root{
+  --chem-accent: var(--accent, #e8560a);
+  --chem-blue: var(--blue, #1a3a6b);
+  --chem-gold: var(--accent2, #f5a623);
+}
+
+/* Respect reduced-motion preference: kill all ambient motion */
+@media (prefers-reduced-motion: reduce){
+  .chem-fx-layer, .molecule, .chem-bubble, .reveal { animation: none !important; transition: none !important; }
+}
+
+/* ── Layer container — absolutely positioned inside any
+   position:relative section, sits behind real content ── */
+.chem-fx-layer{
+  position: absolute; inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Floating molecules (atoms + bonds) ── */
+.molecule{ position: absolute; opacity: 0.5; will-change: transform; }
+.molecule svg{ display: block; }
+
+@keyframes chemDriftA{
+  0%   { transform: translate(0,0) rotate(0deg); }
+  50%  { transform: translate(26px,-34px) rotate(8deg); }
+  100% { transform: translate(0,0) rotate(0deg); }
+}
+@keyframes chemDriftB{
+  0%   { transform: translate(0,0) rotate(0deg); }
+  50%  { transform: translate(-22px,30px) rotate(-9deg); }
+  100% { transform: translate(0,0) rotate(0deg); }
+}
+@keyframes chemDriftC{
+  0%   { transform: translate(0,0) rotate(0deg); }
+  50%  { transform: translate(16px,24px) rotate(6deg); }
+  100% { transform: translate(0,0) rotate(0deg); }
+}
+@keyframes chemSpinSlow{
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.molecule.drift-a{ animation: chemDriftA 15s ease-in-out infinite; }
+.molecule.drift-b{ animation: chemDriftB 19s ease-in-out infinite; }
+.molecule.drift-c{ animation: chemDriftC 17s ease-in-out infinite; }
+.molecule.spin-slow{ animation: chemSpinSlow 60s linear infinite; }
+
+/* ── Rising bubbles (electrolysis / beaker effervescence) ── */
+.chem-bubble{
+  position: absolute; bottom: -24px; border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), rgba(232,86,10,0.16));
+  border: 1px solid rgba(232,86,10,0.22);
+  will-change: transform, opacity;
+}
+@keyframes chemBubbleRise{
+  0%   { transform: translateY(0) scale(1); opacity: 0; }
+  8%   { opacity: 0.55; }
+  85%  { opacity: 0.3; }
+  100% { transform: translateY(-620px) scale(1.35); opacity: 0; }
+}
+.chem-bubble{ animation: chemBubbleRise linear infinite; }
+
+/* ── Slow pulsing glow, e.g. behind a flask/photo ── */
+@keyframes chemPulseGlow{
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50%      { opacity: 0.6;  transform: scale(1.06); }
+}
+.chem-glow{
+  position: absolute; border-radius: 50%;
+  background: radial-gradient(circle, rgba(232,86,10,0.22) 0%, transparent 70%);
+  animation: chemPulseGlow 6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* ── Dotted "bond" connector line that draws itself in ── */
+.chem-bond-draw{ stroke-dasharray: 240; stroke-dashoffset: 240; animation: chemDrawBond 2.4s ease forwards; }
+@keyframes chemDrawBond{ to { stroke-dashoffset: 0; } }
+
+/* ── Scroll reveal utility ── */
+.reveal{
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s cubic-bezier(.22,1,.36,1), transform 0.7s cubic-bezier(.22,1,.36,1);
+}
+.reveal.in{ opacity: 1; transform: translateY(0); }
+.reveal.delay-1{ transition-delay: 0.08s; }
+.reveal.delay-2{ transition-delay: 0.16s; }
+.reveal.delay-3{ transition-delay: 0.24s; }
+.reveal.delay-4{ transition-delay: 0.32s; }
+.reveal.delay-5{ transition-delay: 0.4s; }
+.reveal.delay-6{ transition-delay: 0.48s; }
+
+/* ── Gentle hover lift, reused on cards across pages ── */
+.chem-hover-lift{ transition: transform 0.3s ease, box-shadow 0.3s ease; }
+.chem-hover-lift:hover{ transform: translateY(-6px); box-shadow: 0 18px 40px rgba(30,42,58,0.14); }
+
+/* ── Reduce molecule/bubble count on small screens for performance ── */
+@media (max-width: 760px){
+  .molecule.hide-mobile, .chem-bubble.hide-mobile{ display: none; }
+  /* Shrink + fade remaining molecules and nudge them toward the
+     edges so they don't compete with centered hero text on narrow
+     screens (most hero copy is centered at mobile widths). */
+  .molecule{ opacity: 0.32; transform-origin: center; }
+  .molecule svg{ width: 70%; height: 70%; }
+}
