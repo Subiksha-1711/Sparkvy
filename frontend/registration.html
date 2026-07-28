@@ -1460,16 +1460,35 @@ onclick="removeTag(${id})">✕</span>`;
     }))
 };
 
-fetch("http://127.0.0.1:8000/register", {
+const submitBtn = document.querySelector('.btn-submit');
+if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Submitting…'; }
+
+// Local dev talks to your local FastAPI server; anywhere else (e.g. Vercel)
+// talks to your deployed Render backend. Replace the URL below with your
+// actual Render backend URL after you deploy it.
+const API_BASE = (['localhost','127.0.0.1'].includes(window.location.hostname))
+  ? 'http://127.0.0.1:8000'
+  : 'https://sparkvy-backend.onrender.com';
+
+fetch(`${API_BASE}/register`, {
     method: "POST",
     headers: {
         "Content-Type": "application/json"
     },
     body: JSON.stringify(formData)
 })
-.then(response => response.json())
+.then(async response => {
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+        // Surface the real reason the record was NOT saved instead of
+        // silently showing a false "success" message.
+        const detail = data && data.detail ? data.detail : `Server responded with status ${response.status}`;
+        throw new Error(typeof detail === 'string' ? detail : JSON.stringify(detail));
+    }
+    return data;
+})
 .then(data => {
-    const ref = 'SVY-' + Date.now().toString().slice(-6);
+    const ref = (data && data.id) ? ('SVY-' + String(data.id).slice(-6).toUpperCase()) : ('SVY-' + Date.now().toString().slice(-6));
 
     document.getElementById('refId').textContent = ref;
     document.getElementById('successModal').classList.add('show');
@@ -1478,7 +1497,10 @@ fetch("http://127.0.0.1:8000/register", {
 })
 .catch(error => {
     console.error(error);
-    alert("Failed to submit registration.");
+    alert("Your registration could not be saved. Please check your connection and try again.\n\n" + (error.message || ''));
+})
+.finally(() => {
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Submit Registration →'; }
 });
   }
 

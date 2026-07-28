@@ -309,19 +309,22 @@
               <option>Cancelled</option>
             </select>
             <select class="filter-sel" id="filterCat" onchange="renderForms()">
-              <option value="">All Categories</option>
-              <option>Electrochemical Studies</option>
-              <option>Nanomaterial Synthesis</option>
-              <option>Energy Conversion (Solar Cell)</option>
-              <option>Optical Studies (UV-Vis / PL)</option>
-              <option>Morphological Studies (FESEM / HRTEM)</option>
-              <option>Structural Studies (XRD / Raman)</option>
-              <option>Photocatalytic Studies</option>
-              <option>Biological Studies</option>
-              <option>Simulation Studies (DFT / MD)</option>
-              <option>Internship Program</option>
-              <option>Hands-on Training / Workshop</option>
-              <option>Multiple Services / Custom Package</option>
+              <option value="">All Analysis Types</option>
+              <option>UV-Vis</option>
+              <option>Photoluminescence</option>
+              <option>FTIR</option>
+              <option>Raman</option>
+              <option>XRD</option>
+              <option>FESEM + EDS</option>
+              <option>FESEM + EDS + Mapping</option>
+              <option>HRTEM + EDS + SAED</option>
+              <option>EDAX</option>
+              <option>HRTEM + EDS + SAED + Mapping</option>
+              <option>XPS</option>
+              <option>BET</option>
+              <option>HPLC</option>
+              <option>GCMS</option>
+              <option>NMR</option>
             </select>
             <button class="btn-export" onclick="exportCSV('forms')">⬇ Export CSV</button>
           </div>
@@ -354,7 +357,12 @@
 /* ═══════════════════════════════════════════
    API CONFIG
 ═══════════════════════════════════════════ */
-const API_BASE = 'http://127.0.0.1:8000';
+// Local dev talks to your local FastAPI server; anywhere else (e.g. Vercel)
+// talks to your deployed Render backend. Replace the URL below with your
+// actual Render backend URL after you deploy it.
+const API_BASE = (['localhost','127.0.0.1'].includes(window.location.hostname))
+  ? 'http://127.0.0.1:8000'
+  : 'https://sparkvy-backend.onrender.com';
 
 let currentFormId = null;
 
@@ -391,10 +399,22 @@ async function loadAll() {
   renderAll();
 }
 
+const ADMIN_EMAIL = 'sparkvycoimbatore@gmail.com';
+
 function clearAuthSession() {
   sessionStorage.removeItem('sparkvy_session');
   localStorage.removeItem('sparkvy_session');
   document.cookie = 'sparkvy_session=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
+}
+
+function requireAdminAuth() {
+  let session = null;
+  try { session = JSON.parse(sessionStorage.getItem('sparkvy_session') || 'null'); } catch(e) { session = null; }
+  if (!session || String(session.email||'').trim().toLowerCase() !== ADMIN_EMAIL) {
+    window.location.replace('index.html');
+    return false;
+  }
+  return true;
 }
 
 function handleAdminLogout(event) {
@@ -536,8 +556,8 @@ function renderDashPreviews(){
               <td>${i+1}</td>
               <td><strong>${esc(r.fullName)}</strong><br>
                 <span style="font-size:0.73rem;color:var(--muted)">${esc(r.institution)}</span></td>
-              <td style="font-size:0.78rem;max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"
-                title="${esc(r.serviceCategory)}">${esc(r.serviceCategory)}</td>
+              <td style="font-size:0.78rem;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"
+                title="${esc((r.analysis||[]).map(analysisLabel).join(', '))}">${esc((r.analysis||[]).map(analysisLabel).join(', ')||'—')}</td>
               <td>${statusBadge(r.status)}</td>
               <td style="font-size:0.76rem;white-space:nowrap">${fmtDate(r.submittedAt)}</td>
             </tr>`).join('') : `<tr><td colspan="5" class="no-data"><div class="nd-icon">📭</div><p>No submissions yet</p></td></tr>`}
@@ -621,7 +641,7 @@ function renderForms(){
     (r.institution||'').toLowerCase().includes(q)||
     (r.phone||'').includes(q));
   if(st)  regs = regs.filter(r=>(r.status||'Pending')===st);
-  if(cat) regs = regs.filter(r=>r.serviceCategory===cat);
+  if(cat) regs = regs.filter(r=> Array.isArray(r.analysis) && r.analysis.some(a=>analysisLabel(a)===cat));
 
   const t = document.getElementById('formsTable');
   if(!t) return;
@@ -640,9 +660,8 @@ function renderForms(){
       <th>Phone</th>
       <th>Institution</th>
       <th>City</th>
-      <th>Sample</th>
-      <th># Samples</th>
       <th>Analysis Types</th>
+      <th>Samples</th>
       <th>Status</th>
       <th>Submitted On</th>
       <th>Action</th>
@@ -659,10 +678,13 @@ function renderForms(){
         <td style="font-size:0.8rem">${esc(r.phone)}</td>
         <td style="font-weight:600">${esc(r.institution)}</td>
         <td style="font-size:0.8rem">${esc(r.city)}</td>
-        <td style="font-size:0.79rem;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"
-          title="${esc(r.sampleName)}">${esc(r.sampleName)}</td>
-        <td style="font-size:0.79rem">${esc(r.numSamples)}</td>
-        <td style="font-size:0.78rem">${Array.isArray(r.analysis) ? r.analysis.length+' selected' : '—'}</td>
+        <td style="font-size:0.78rem;max-width:220px;white-space:normal"
+          title="${esc((r.analysis||[]).map(analysisLabel).join(', '))}">
+          ${Array.isArray(r.analysis) && r.analysis.length
+            ? `<div class="tech-tags">${r.analysis.slice(0,3).map(a=>`<span class="tech-tag">${esc(analysisLabel(a))}</span>`).join('')}${r.analysis.length>3?`<span class="tech-tag">+${r.analysis.length-3}</span>`:''}</div>`
+            : '—'}
+        </td>
+        <td style="font-size:0.79rem;text-align:center">${totalSampleCount(r)}</td>
         <td>${statusBadge(r.status)}</td>
         <td style="font-size:0.77rem;white-space:nowrap;color:var(--muted)">${fmtDate(r.submittedAt)}</td>
         <td>
@@ -681,23 +703,80 @@ function renderForms(){
 /* Matches the ANALYSIS_OPTIONS list in registration.html so the
    numeric IDs stored in `analysis` can be shown as readable labels. */
 const ANALYSIS_OPTIONS = [
-  { id: 1,  label: 'Supercapacitor Application' },
-  { id: 2,  label: 'Battery Application' },
-  { id: 3,  label: 'Mott-Schottky Analysis' },
-  { id: 4,  label: 'EIS – Impedance Analysis' },
-  { id: 5,  label: 'Photo Catalysis Activity' },
-  { id: 6,  label: 'Sensor Studies' },
-  { id: 7,  label: 'Water Splitting Analysis' },
-  { id: 8,  label: 'XRD (X-Ray Diffraction)' },
-  { id: 9,  label: 'XPS / BET' },
-  { id: 10, label: 'UV / Raman / PL Spectroscopy' },
-  { id: 11, label: 'FESEM / HRTEM / EDS / AFM' },
-  { id: 12, label: '¹H NMR / ¹³C NMR' },
-  { id: 13, label: 'HPLC / GC-MS' },
-  { id: 14, label: 'I-V Characteristics' },
-  { id: 15, label: 'Dielectric Studies' },
-  { id: 16, label: 'Others (specify in notes)' },
+  { id: 1,  label: 'UV-Vis' },
+  { id: 2,  label: 'Photoluminescence' },
+  { id: 3,  label: 'FTIR' },
+  { id: 4,  label: 'Raman' },
+  { id: 5,  label: 'XRD' },
+  { id: 6,  label: 'FESEM + EDS' },
+  { id: 7,  label: 'FESEM + EDS + Mapping' },
+  { id: 8,  label: 'HRTEM + EDS + SAED' },
+  { id: 9,  label: 'EDAX' },
+  { id: 10, label: 'HRTEM + EDS + SAED + Mapping' },
+  { id: 11, label: 'XPS' },
+  { id: 12, label: 'BET' },
+  { id: 14, label: 'HPLC' },
+  { id: 15, label: 'GCMS' },
+  { id: 16, label: 'NMR' },
 ];
+
+/* Human-friendly labels for the extra per-sample fields that appear
+   depending on which analysis type they belong to (see registration.html). */
+const SAMPLE_FIELD_LABELS = {
+  sampleCode: 'Sample Code',
+  nature: 'Nature of Sample',
+  toxicity: 'Toxicity',
+  moisture: 'Moisture Sensitivity',
+  handling: 'Handling Procedure',
+  diffractionFrom: 'Diffraction Angle (From)',
+  diffractionTo: 'Diffraction Angle (To)',
+  scanType: 'Type of Scan',
+  magnification: 'Magnification',
+  elementsEDS: 'Elements for EDS',
+  expectedMorphology: 'Expected Morphology',
+  structureDetails: 'Structure Details',
+  techniqueRequested: 'Technique Requested',
+  composition: 'Composition',
+  analysisCondition: 'Analysis Conditions Required',
+  compoundToBeAnalyzed: 'Compound to be Analyzed',
+  solventName: 'Solvent Name',
+  solvent: 'Solvent',
+  otherSolvent: 'Other Solvent (specified)',
+  nuclei: 'Nuclei',
+  chemicalComposition: 'Chemical Composition',
+  elementsToBeIdentified: 'Elements to be Identified',
+  sampleProperty: 'Sample Property',
+};
+const SAMPLE_FIELD_ORDER = Object.keys(SAMPLE_FIELD_LABELS);
+
+function fmtSampleValue(v){
+  if (Array.isArray(v)) return v.length ? v.join(', ') : '';
+  return (v===undefined||v===null) ? '' : String(v);
+}
+
+/* Total number of individual samples across every analysis type
+   selected in a registration (used for table + CSV + Word export). */
+function totalSampleCount(r){
+  if (!Array.isArray(r.sampleDetails)) return 0;
+  return r.sampleDetails.reduce((sum,sd)=> sum + (Array.isArray(sd.samples)?sd.samples.length:0), 0);
+}
+
+/* Plain-text summary of every analysis + sample field, used for CSV export
+   and as a fallback so no submitted detail is ever silently dropped. */
+function sampleDetailsSummary(r){
+  if (!Array.isArray(r.sampleDetails) || !r.sampleDetails.length) return '';
+  return r.sampleDetails.map(sd=>{
+    const label = sd.analysis || analysisLabel(sd.analysisId);
+    const samples = Array.isArray(sd.samples) ? sd.samples : [];
+    const sampleTxt = samples.map((s,idx)=>{
+      const parts = SAMPLE_FIELD_ORDER
+        .filter(f=> s[f]!==undefined && s[f]!==null && s[f]!=='' && !(Array.isArray(s[f])&&!s[f].length))
+        .map(f=> `${SAMPLE_FIELD_LABELS[f]}: ${fmtSampleValue(s[f])}`);
+      return `Sample ${idx+1} [${parts.join(' | ')}]`;
+    }).join('; ');
+    return `${label} -> ${sampleTxt||'No sample details provided'}`;
+  }).join(' || ');
+}
 function analysisLabel(id){
   const opt = ANALYSIS_OPTIONS.find(o=>o.id===id);
   return opt ? opt.label : ('Type #'+id);
@@ -725,19 +804,34 @@ function openDetail(id){
       </div>
     </div>
     <div class="ds">
-      <h4>🔬 Sample & Analysis Details</h4>
-      <div class="dg">
-        ${df('Sample Name',r.sampleName)}
-        ${df('Number of Samples',r.numSamples)}
-        ${df('Sample Form',r.sampleForm)}
-      </div>
-      <div class="dg full" style="margin-top:12px">
+      <h4>🔬 Analysis & Sample Details</h4>
+      <div class="dg full">
         <div class="df"><label>Analysis Types Requested</label>
           ${(r.analysis&&r.analysis.length)
             ? `<div class="tech-tags">${r.analysis.map(a=>`<span class="tech-tag">${esc(analysisLabel(a))}</span>`).join('')}</div>`
             : `<p class="empty">None specified</p>`}
         </div>
       </div>
+      <div class="dg full" style="margin-top:6px">
+        <div class="df"><label>Total Samples Submitted</label><p>${totalSampleCount(r)}</p></div>
+      </div>
+      ${(Array.isArray(r.sampleDetails)&&r.sampleDetails.length) ? r.sampleDetails.map(sd=>{
+        const label = sd.analysis || analysisLabel(sd.analysisId);
+        const samples = Array.isArray(sd.samples) ? sd.samples : [];
+        return `
+          <div style="margin-top:16px;border:1px solid var(--border);border-radius:10px;overflow:hidden;">
+            <div style="background:var(--bg);padding:9px 14px;font-weight:800;font-size:0.8rem;color:var(--blue);border-bottom:1px solid var(--border);">
+              🧪 ${esc(label)} <span style="font-weight:600;color:var(--muted);font-size:0.74rem;">(${samples.length} sample${samples.length===1?'':'s'})</span>
+            </div>
+            ${samples.length ? samples.map((s,idx)=>`
+              <div class="dg" style="padding:14px;border-bottom:1px solid var(--border);">
+                <div class="df" style="grid-column:1/-1;"><label>Sample ${idx+1}</label></div>
+                ${SAMPLE_FIELD_ORDER
+                  .filter(f=> s[f]!==undefined && s[f]!==null && s[f]!=='' && !(Array.isArray(s[f])&&!s[f].length))
+                  .map(f=> df(SAMPLE_FIELD_LABELS[f], fmtSampleValue(s[f]))).join('')}
+              </div>`).join('') : `<p class="empty" style="padding:14px;">No sample details provided</p>`}
+          </div>`;
+      }).join('') : `<p class="empty" style="margin-top:10px;">No per-sample details were submitted.</p>`}
     </div>
   `;
 
@@ -819,6 +913,52 @@ function regFileLabel(r){
   const safeName = (r.fullName||'registration').trim().replace(/[^a-z0-9]+/gi,'_').replace(/^_+|_+$/g,'');
   const refTail = (r._id||'').toString().slice(-6);
   return `SparkVy_Registration_${safeName}${refTail ? '_'+refTail : ''}.docx`;
+}
+
+function sampleDetailSections(r, ctx){
+  const { sectionHeading, Table, WidthType, TABLE_W, LABEL_COL, VALUE_COL, fieldRow, Paragraph, TextRun, MUTED } = ctx;
+  const nodes = [];
+  const details = Array.isArray(r.sampleDetails) ? r.sampleDetails : [];
+
+  if (!details.length) {
+    nodes.push(sectionHeading("Sample Details"));
+    nodes.push(new Paragraph({
+      spacing: { after: 160 },
+      children: [ new TextRun({ text: "No per-sample details were submitted for this registration.", size: 19, italics: true, color: MUTED, font: "Arial" }) ]
+    }));
+    return nodes;
+  }
+
+  details.forEach(sd=>{
+    const label = sd.analysis || analysisLabel(sd.analysisId);
+    const samples = Array.isArray(sd.samples) ? sd.samples : [];
+    nodes.push(sectionHeading(label));
+
+    if (!samples.length) {
+      nodes.push(new Paragraph({
+        spacing: { after: 160 },
+        children: [ new TextRun({ text: "No sample details provided.", size: 19, italics: true, color: MUTED, font: "Arial" }) ]
+      }));
+      return;
+    }
+
+    samples.forEach((s, idx)=>{
+      nodes.push(new Paragraph({
+        spacing: { before: 120, after: 60 },
+        children: [ new TextRun({ text: `Sample ${idx+1}`, bold: true, size: 19, color: MUTED, font: "Arial" }) ]
+      }));
+      const rows = SAMPLE_FIELD_ORDER
+        .filter(f=> s[f]!==undefined && s[f]!==null && s[f]!=='' && !(Array.isArray(s[f])&&!s[f].length))
+        .map(f=> fieldRow(SAMPLE_FIELD_LABELS[f], fmtSampleValue(s[f])));
+      nodes.push(new Table({
+        width: { size: TABLE_W, type: WidthType.DXA },
+        columnWidths: [LABEL_COL, VALUE_COL],
+        rows: rows.length ? rows : [ fieldRow("Details", "Not provided") ]
+      }));
+    });
+  });
+
+  return nodes;
 }
 
 async function downloadRegistrationDocx(id, btnEl){
@@ -964,17 +1104,17 @@ async function downloadRegistrationDocx(id, btnEl){
             ]
           }),
 
-          sectionHeading("Sample & Analysis Details"),
+          sectionHeading("Analysis Types Requested"),
           new Table({
             width: { size: TABLE_W, type: WidthType.DXA },
             columnWidths: [LABEL_COL, VALUE_COL],
             rows: [
-              fieldRow("Sample Name", r.sampleName),
-              fieldRow("Number of Samples", r.numSamples),
-              fieldRow("Sample Form", r.sampleForm),
-              fieldRow("Analysis Types Requested", analysisLabels),
+              fieldRow("Analysis Types", analysisLabels),
+              fieldRow("Total Samples Submitted", totalSampleCount(r)),
             ]
           }),
+
+          ...sampleDetailSections(r, { sectionHeading, Table, WidthType, TABLE_W, LABEL_COL, VALUE_COL, fieldRow, Paragraph, TextRun, MUTED }),
 
           new Paragraph({
             spacing: { before: 420 },
@@ -1018,12 +1158,20 @@ function exportCSV(type){
     const regs = registrations;
     if(!regs.length){ alert('No submission data to export.'); return; }
     const cols=['_id','submittedAt','status','fullName','designation','email','phone',
-      'institution','city','sampleName','numSamples','sampleForm','analysis'];
+      'institution','city','analysisTypes','totalSamples','sampleDetails'];
     const rows=[cols.join(',')];
-    regs.forEach(r=> rows.push(cols.map(c=>{
-      const v=Array.isArray(r[c])?r[c].join('; '):(r[c]||'');
-      return '"'+String(v).replace(/"/g,'""')+'"';
-    }).join(',')));
+    regs.forEach(r=>{
+      const record = {
+        ...r,
+        analysisTypes: Array.isArray(r.analysis) ? r.analysis.map(analysisLabel).join('; ') : '',
+        totalSamples: totalSampleCount(r),
+        sampleDetails: sampleDetailsSummary(r),
+      };
+      rows.push(cols.map(c=>{
+        const v = record[c];
+        return '"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+      }).join(','));
+    });
     download(rows.join('\n'), 'sparkvy_submissions_'+today()+'.csv');
   }
 }
@@ -1043,8 +1191,16 @@ function emptyRow(cols,icon,msg){
 
 /* ── INIT ── */
 window.onload = function () {
+    if (!requireAdminAuth()) return;
     loadAll();
 };
+
+// Ensure browser navigation/back-forward cache doesn't allow access after logout.
+window.addEventListener('pageshow', function(event) {
+  if (event.persisted || (window.performance && window.performance.getEntriesByType('navigation').some(n => n.type === 'back_forward'))) {
+    requireAdminAuth();
+  }
+});
 </script>
 </body>
 </html>
