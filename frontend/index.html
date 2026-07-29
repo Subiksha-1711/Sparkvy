@@ -676,12 +676,7 @@
 
   const ADMIN_EMAIL = 'sparkvycoimbatore@gmail.com'; // case-insensitive check
   const SESSION_KEY = 'sparkvy_session';
-  // Local dev talks to your local FastAPI server; anywhere else (e.g. Vercel)
-  // talks to your deployed Render backend. Replace the URL below with your
-  // actual Render backend URL after you deploy it.
-  const API_BASE = (['localhost','127.0.0.1'].includes(window.location.hostname))
-    ? 'http://127.0.0.1:8000'
-    : 'https://sparkvy-backend.onrender.com';
+  const API_BASE = 'https://sparkvy-backend.onrender.com';
 
   /* ── Helpers ── */
   function getSession() {

@@ -1463,12 +1463,7 @@ onclick="removeTag(${id})">✕</span>`;
 const submitBtn = document.querySelector('.btn-submit');
 if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Submitting…'; }
 
-// Local dev talks to your local FastAPI server; anywhere else (e.g. Vercel)
-// talks to your deployed Render backend. Replace the URL below with your
-// actual Render backend URL after you deploy it.
-const API_BASE = (['localhost','127.0.0.1'].includes(window.location.hostname))
-  ? 'http://127.0.0.1:8000'
-  : 'https://sparkvy-backend.onrender.com';
+const API_BASE = 'https://sparkvy-backend.onrender.com';
 
 fetch(`${API_BASE}/register`, {
     method: "POST",
