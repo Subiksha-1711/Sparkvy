@@ -22,8 +22,16 @@ app.add_middleware(
 # MONGODB_URI is read from the environment so the same code works locally
 # (falls back to your local MongoDB) and on Render (set MONGODB_URI to your
 # MongoDB Atlas connection string in the Render dashboard's Environment tab).
-MONGODB_URI = os.environ.get("MONGODB_URI", "mongodb://localhost:27017/")
-client = MongoClient(MONGODB_URI)
+MONGODB_URI = os.environ["MONGODB_URI"]
+
+print("Mongo URI:", MONGODB_URI)
+
+client = MongoClient(
+    MONGODB_URI,
+    serverSelectionTimeoutMS=5000
+)
+
+print(client.server_info())
 db = client["college_project"]
 
 # Two separate collections so "website logins" and "form submissions"
