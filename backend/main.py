@@ -28,7 +28,14 @@ app.add_middleware(
 # deploying to platforms like Render.
 MONGODB_URI = os.environ.get("MONGODB_URI", "mongodb://localhost:27017/")
 if MONGODB_URI.startswith("mongodb+srv://") or "ssl=true" in MONGODB_URI or "tls=true" in MONGODB_URI:
-    client = MongoClient(MONGODB_URI, tlsCAFile=certifi.where())
+    client = MongoClient(
+    MONGODB_URI,
+    tls=True,
+    tlsCAFile=certifi.where(),
+    serverSelectionTimeoutMS=5000
+)
+
+print(client.server_info())
 else:
     client = MongoClient(MONGODB_URI)
 db = client["college_project"]
