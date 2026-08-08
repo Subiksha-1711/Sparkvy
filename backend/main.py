@@ -42,7 +42,6 @@ if (
 else:
     client = MongoClient(MONGODB_URI)
 
-print(client.server_info())
 
 db = client["college_project"]
 
