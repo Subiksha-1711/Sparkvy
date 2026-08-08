@@ -6,6 +6,7 @@
 fastapi==0.140.1
 pydantic==2.13.4
 pymongo==4.17.0
+certifi==2025.1.31
 
 # Required to actually serve the app in production (`uvicorn main:app`).
 # Not imported inside main.py, but mandatory for deployment.

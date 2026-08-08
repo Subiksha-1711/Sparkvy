@@ -6,14 +6,13 @@ from bson import ObjectId
 from bson.errors import InvalidId
 from datetime import datetime, timezone
 import os
+import certifi
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://sparkvy.vercel.app"
-    ],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -22,16 +21,16 @@ app.add_middleware(
 # MONGODB_URI is read from the environment so the same code works locally
 # (falls back to your local MongoDB) and on Render (set MONGODB_URI to your
 # MongoDB Atlas connection string in the Render dashboard's Environment tab).
-MONGODB_URI = os.environ["MONGODB_URI"]
-
-print("Mongo URI:", MONGODB_URI)
-
-client = MongoClient(
-    MONGODB_URI,
-    serverSelectionTimeoutMS=5000
-)
-
-print(client.server_info())
+#
+# tlsCAFile=certifi.where() explicitly gives pymongo a known-good CA bundle
+# instead of relying on the container's system store — this fixes a common
+# class of "SSL handshake failed" / TLSV1_ALERT_INTERNAL_ERROR seen when
+# deploying to platforms like Render.
+MONGODB_URI = os.environ.get("MONGODB_URI", "mongodb://localhost:27017/")
+if MONGODB_URI.startswith("mongodb+srv://") or "ssl=true" in MONGODB_URI or "tls=true" in MONGODB_URI:
+    client = MongoClient(MONGODB_URI, tlsCAFile=certifi.where())
+else:
+    client = MongoClient(MONGODB_URI)
 db = client["college_project"]
 
 # Two separate collections so "website logins" and "form submissions"
