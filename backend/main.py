@@ -27,17 +27,23 @@ app.add_middleware(
 # class of "SSL handshake failed" / TLSV1_ALERT_INTERNAL_ERROR seen when
 # deploying to platforms like Render.
 MONGODB_URI = os.environ.get("MONGODB_URI", "mongodb://localhost:27017/")
-if MONGODB_URI.startswith("mongodb+srv://") or "ssl=true" in MONGODB_URI or "tls=true" in MONGODB_URI:
-    client = MongoClient(
-    MONGODB_URI,
-    tls=True,
-    tlsCAFile=certifi.where(),
-    serverSelectionTimeoutMS=5000
-)
 
-print(client.server_info())
+if (
+    MONGODB_URI.startswith("mongodb+srv://")
+    or "ssl=true" in MONGODB_URI
+    or "tls=true" in MONGODB_URI
+):
+    client = MongoClient(
+        MONGODB_URI,
+        tls=True,
+        tlsCAFile=certifi.where(),
+        serverSelectionTimeoutMS=5000
+    )
 else:
     client = MongoClient(MONGODB_URI)
+
+print(client.server_info())
+
 db = client["college_project"]
 
 # Two separate collections so "website logins" and "form submissions"
