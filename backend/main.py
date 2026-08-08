@@ -35,8 +35,6 @@ if (
 ):
     client = MongoClient(
         MONGODB_URI,
-        tls=True,
-        tlsCAFile=certifi.where(),
         serverSelectionTimeoutMS=5000
     )
 else:
